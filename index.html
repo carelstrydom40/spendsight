@@ -27,7 +27,7 @@ a{color:var(--maroon)}
 #mainnav button:hover{background:var(--card2);color:var(--ink)}
 #mainnav button.on{background:var(--card2);color:var(--ink);box-shadow:inset 2px 0 0 var(--maroon)}
 #mainnav button span{width:22px;text-align:center}
-body.nodata #mainnav{opacity:.45;pointer-events:none}
+body.nodata #mainnav button:not([data-p=pInv]):not([data-p=pHelp]){opacity:.45;pointer-events:none}   /* spending pages wait for a bank statement; investing and help never do */
 .sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
 #themebtn{background:var(--card2);color:var(--ink);border:1px solid var(--line);font-weight:600}
 /* main area */
@@ -41,9 +41,9 @@ h4{color:var(--ink)}
 .dash{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;grid-auto-flow:row dense}
 .dash>.card{margin:0}
 .s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
-#drop{display:block;border:1.5px dashed var(--line);border-radius:10px;padding:44px 16px;text-align:center;background:var(--card2);cursor:pointer;transition:.2s}
-#drop.over{background:color-mix(in srgb,var(--maroon) 12%,var(--card2))}
-#drop b{color:var(--ink);font-size:1.15rem}
+#drop,#idrop{display:block;border:1.5px dashed var(--line);border-radius:10px;padding:44px 16px;text-align:center;background:var(--card2);cursor:pointer;transition:.2s}
+#drop.over,#idrop.over{background:color-mix(in srgb,var(--maroon) 12%,var(--card2))}
+#drop b,#idrop b{color:var(--ink);font-size:1.15rem}
 .small{font-size:.84rem;color:var(--muted)}
 button{background:var(--maroon);color:var(--heroink);border:0;border-radius:6px;padding:9px 15px;font-size:.88rem;cursor:pointer;font-weight:500;font-family:inherit}
 button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
@@ -86,6 +86,13 @@ input[type=number],input[type=text],input[type=search],select{font:inherit;font-
 .chip{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:.88rem;cursor:pointer;font-weight:500}
 .chip:hover{border-color:var(--maroon)} .chip.sug{border-color:var(--green);background:var(--okbg);font-weight:700}
 .chip select{color:var(--ink)}
+.locked{display:none!important}
+.donutwrap{display:grid;grid-template-columns:minmax(160px,230px) minmax(0,1fr);gap:22px;align-items:center}.donut{width:100%;max-width:230px}
+.legend>div{display:grid;grid-template-columns:12px minmax(0,1fr) auto 56px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.legend>div:has(> .lk:first-child){grid-template-columns:minmax(0,1fr) 48px}.legend .dot{width:12px;height:12px;border-radius:3px}.legend .lk{overflow-wrap:anywhere}.legend b{text-align:right}
+.calcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.choose{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.choose button{text-align:left;padding:18px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:10px}.choose button:hover{border-color:var(--maroon)}.choose b{display:block;font-size:1.05rem;margin-bottom:4px}
+@media (max-width:640px){.donutwrap{grid-template-columns:1fr;justify-items:center}.legend{width:100%}.choose{grid-template-columns:1fr}}
 .bublist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 16px;margin-top:10px;font-size:.88rem}.bublist>div{display:grid;grid-template-columns:22px minmax(0,1fr) auto 64px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}.bublist .bn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:.72rem;font-weight:700}.bublist .bk{overflow-wrap:anywhere}
 .ask{border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0;background:var(--card2)}
 .ask .q{font-weight:700}
@@ -153,12 +160,18 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
 <aside class="side">
   <div class="logo"><i>S</i>SpendSight</div>
     <nav id="mainnav" role="tablist">
+    <div class="navlab">Spending</div>
     <button data-p="pMonth" class="on">Dashboard</button>
     <button data-p="pYear">Cash flow</button>
     <button data-p="pTx">Transactions</button>
-    <div class="navlab">Analysis</div>
     <button data-p="pCmp">Comparisons &amp; insights</button>
     <button data-p="pPlan">Savings &amp; growth</button>
+    <div class="navlab">Investing</div>
+    <button data-p="pInv" data-it="ov">Portfolio</button>
+    <button data-p="pInv" data-it="hold">Holdings</button>
+    <button data-p="pInv" data-it="inc">Dividends &amp; income</button>
+    <button data-p="pInv" data-it="sim">Growth simulator</button>
+    <button data-p="pInv" data-it="acc">Accounts &amp; import</button>
     <div class="navlab">Data</div>
     <button data-p="pFiles">Statements</button>
     <button data-p="pHelp">Help</button>
@@ -171,6 +184,7 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
 <main>
   <div class="top"><div><h1 id="ptitle">Welcome</h1><p class="small" id="psub">Drop in your bank statements to see where your money goes.</p><p class="intro" id="pintro"></p></div>
     <div class="row" id="acctwrap"><label for="acctsel" class="small">Account</label><select id="acctsel"></select></div></div>
+  <div class="choose" id="choose"><button id="goSpend"><b>Track my spending</b><span class="small">Add bank statements to see where your money goes each month.</span></button><button id="goInvest"><b>Track my investments</b><span class="small">Add broker statements to see value, growth, dividends and spread.</span></button></div>
   <div class="card" id="upcard">
     <ol class="steps" id="steps"><li><b>Download</b><span>a CSV statement from your bank's website or app</span></li><li><b>Add it here</b><span>drag it in or tap the box below</span></li><li><b>See your money</b><span>totals, charts and tips appear right away</span></li></ol>
     <label id="drop" for="file">
@@ -202,6 +216,8 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
     <p class="small">You only do this once per bank layout.</p>
   </div>
 
+  <div id="lockcard" class="card hidden"></div>
+  <div id="pInv" class="hidden"><div id="invbody"></div></div>
   <div id="pHelp" class="hidden">
     <div class="card"><h3>Getting started</h3>
       <p>SpendSight reads the statements you download from your bank and shows where your money goes. Everything happens on this device: nothing is uploaded or stored online.</p>
@@ -1412,6 +1428,661 @@ const Importers = (() => {
 })();
 if (typeof module !== 'undefined') module.exports = Importers;
 
+// Invest: portfolio maths. Pure functions, no screen code, so the tester can check every number.
+// Data (kept on the device):
+//   accounts: [{id, name, type: 'tfsa'|'disc'|'ra'|'offshore'|'other', cur}]
+//   tx:       [{id, acct, date:'YYYY-MM-DD', type, sym, name, qty, price, amount, fee, cur, src}]
+//             type: buy | sell | div | int | fee | dep | wd | tax | snap (a holding's value on a statement date)
+//             amount is always positive; the type says the direction. fee is the cost charged on that line.
+//   prices:   {SYM: {price, date, src}}   only from statements or typed by the user; never guessed
+//   meta:     {SYM: {cls, sector, country, region, cur}}
+// Rule: nothing is invented. A holding without a known price is shown as "no price yet" and left out of value.
+const Invest = (() => {
+  const TYPES = { buy: 'Buy', sell: 'Sell', div: 'Dividend', int: 'Interest', fee: 'Fee', dep: 'Deposit', wd: 'Withdrawal', tax: 'Tax', snap: 'Statement value' };
+  const ACCT = { tfsa: 'Tax-free savings', disc: 'Discretionary', ra: 'Retirement annuity', offshore: 'International', other: 'Other' };
+  const r2 = v => Math.round(v * 100) / 100;
+  const byDate = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.type === 'sell') - (b.type === 'sell');
+
+  // holdings with the average-cost method (as used on most SA broker tax certificates)
+  function holdings(tx, prices = {}) {
+    const H = {};
+    for (const t of tx.filter(t => t.sym && (t.type === 'buy' || t.type === 'sell' || t.type === 'snap')).sort(byDate)) {
+      const k = t.acct + '|' + t.sym, h = H[k] || (H[k] = { acct: t.acct, sym: t.sym, name: t.name || t.sym, qty: 0, cost: 0, realised: 0, lastPrice: null, lastDate: null });
+      if (t.type === 'buy') { h.qty += t.qty; h.cost += t.amount + (t.fee || 0); }
+      else if (t.type === 'sell') {
+        const avg = h.qty ? h.cost / h.qty : 0, q = Math.min(t.qty, h.qty);
+        h.realised += t.amount - (t.fee || 0) - avg * q; h.cost -= avg * q; h.qty -= q;
+        if (h.qty < 1e-9) { h.qty = 0; h.cost = 0; }
+      }
+      if (t.price > 0 && t.type !== 'snap') { h.lastPrice = t.price; h.lastDate = t.date; }
+      if (t.type === 'snap' && t.qty > 0 && t.amount > 0) { h.lastPrice = t.amount / t.qty; h.lastDate = t.date; }
+    }
+    return Object.values(H).map(h => {
+      const p = prices[h.sym] && (!h.lastDate || prices[h.sym].date >= h.lastDate) ? prices[h.sym] : (h.lastPrice ? { price: h.lastPrice, date: h.lastDate, src: 'statement' } : null);
+      const value = p && h.qty ? h.qty * p.price : (h.qty ? null : 0);
+      return { ...h, cost: r2(h.cost), realised: r2(h.realised), price: p ? p.price : null, priceDate: p ? p.date : null, value: value == null ? null : r2(value),
+        unrealised: value == null ? null : r2(value - h.cost), pct: value == null || !h.cost ? null : (value - h.cost) / h.cost };
+    });
+  }
+
+  // cash left in an account, from its own transactions
+  function cash(tx) {
+    let c = 0;
+    for (const t of tx) {
+      const f = t.fee || 0;
+      if (t.type === 'dep' || t.type === 'sell' || t.type === 'div' || t.type === 'int') c += t.amount - (t.type === 'sell' ? f : 0);
+      else if (t.type === 'buy') c -= t.amount + f;
+      else if (t.type === 'wd' || t.type === 'fee' || t.type === 'tax') c -= t.amount;
+    }
+    return r2(c);
+  }
+
+  // money-weighted yearly return (XIRR) on the investor's own deposits and withdrawals
+  function xirr(flows) {   // flows: [{date, v}] v<0 = money put in
+    if (flows.length < 2 || !flows.some(f => f.v < 0) || !flows.some(f => f.v > 0)) return null;
+    const t0 = new Date(flows[0].date), yrs = f => (new Date(f.date) - t0) / 31557600000;
+    if (yrs(flows[flows.length - 1]) < 1 / 365) return null;
+    const npv = r => flows.reduce((a, f) => a + f.v / Math.pow(1 + r, yrs(f)), 0);
+    let lo = -0.9999, hi = 10;
+    if (npv(lo) * npv(hi) > 0) return null;
+    for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; (npv(lo) * npv(m) <= 0) ? hi = m : lo = m; }
+    return (lo + hi) / 2;
+  }
+
+  // the whole picture for a set of accounts
+  function summary(data, acctIds, today) {
+    const tx = data.tx.filter(t => acctIds.includes(t.acct)).sort(byDate), H = holdings(tx, data.prices).filter(h => h.qty > 0 || h.realised);
+    const sum = (k, f = () => true) => r2(tx.filter(t => t.type === k && f(t)).reduce((a, t) => a + t.amount, 0));
+    const open = H.filter(h => h.qty > 0), priced = open.filter(h => h.value != null);
+    const holdingsValue = r2(priced.reduce((a, h) => a + h.value, 0)), cashNow = r2(acctIds.reduce((a, id) => a + cash(tx.filter(t => t.acct === id)), 0));
+    const deposits = sum('dep'), withdrawals = sum('wd'), dividends = sum('div'), interest = sum('int');
+    const acctFees = sum('fee'), tradeFees = r2(tx.reduce((a, t) => a + (t.fee || 0), 0)), fees = r2(acctFees + tradeFees), taxes = sum('tax');
+    const total = r2(holdingsValue + cashNow), invested = r2(deposits - withdrawals);
+    const unrealised = r2(priced.reduce((a, h) => a + h.unrealised, 0)), realised = r2(H.reduce((a, h) => a + h.realised, 0));
+    const flows = tx.filter(t => t.type === 'dep' || t.type === 'wd').map(t => ({ date: t.date, v: t.type === 'dep' ? -t.amount : t.amount }));
+    const missing = open.filter(h => h.value == null);
+    if (today && total > 0) flows.push({ date: today, v: total });
+    return { tx, holdings: H, open, missing, holdingsValue, cash: cashNow, total, deposits, withdrawals, invested, gain: r2(total - invested),
+      gainPct: invested > 0 ? (total - invested) / invested : null, unrealised, realised, dividends, interest, fees, acctFees, tradeFees, taxes,
+      yearly: missing.length ? null : xirr(flows), costPct: invested > 0 ? fees / invested : null };
+  }
+
+  // spread by a meta field (asset class, sector, country, region, currency), by current value
+  function spread(S, meta, field) {
+    const out = {}; let tot = 0;
+    for (const h of S.open) if (h.value != null) { const k = (meta[h.sym] && meta[h.sym][field]) || 'Not set'; out[k] = (out[k] || 0) + h.value; tot += h.value; }
+    if (field === 'cls' && S.cash > 0) { out.Cash = (out.Cash || 0) + S.cash; tot += S.cash; }
+    return Object.entries(out).map(([k, v]) => ({ k, v: r2(v), pct: tot ? v / tot : 0 })).sort((a, b) => b.v - a.v);
+  }
+
+  // concentration: the biggest holdings and how much of the portfolio they are
+  function concentration(S) {
+    const tot = S.holdingsValue + Math.max(0, S.cash), list = S.open.filter(h => h.value != null).sort((a, b) => b.value - a.value);
+    const top = list[0], top5 = list.slice(0, 5).reduce((a, h) => a + h.value, 0);
+    return { top: top ? { sym: top.sym, name: top.name, pct: tot ? top.value / tot : 0 } : null, top5Pct: tot ? top5 / tot : 0, count: list.length };
+  }
+
+  // income: per calendar year, and the last 12 months as a "same again" estimate (clearly not a promise)
+  function income(S, today) {
+    const yrs = {};
+    for (const t of S.tx) if (t.type === 'div' || t.type === 'int') { const y = t.date.slice(0, 4); yrs[y] = yrs[y] || { div: 0, int: 0 }; yrs[y][t.type] += t.amount; }
+    const from = new Date(today); from.setFullYear(from.getFullYear() - 1); const f = from.toISOString().slice(0, 10);
+    const last12 = r2(S.tx.filter(t => (t.type === 'div' || t.type === 'int') && t.date > f && t.date <= today).reduce((a, t) => a + t.amount, 0));
+    const bySym = {}; S.tx.filter(t => t.type === 'div' && t.date > f && t.date <= today).forEach(t => { const k = t.sym || 'Other'; bySym[k] = r2((bySym[k] || 0) + t.amount); });
+    return { years: Object.entries(yrs).sort().map(([y, v]) => ({ y, div: r2(v.div), int: r2(v.int) })), last12, bySym,
+      yieldPct: S.total > 0 ? last12 / S.total : null };
+  }
+
+  // rebalancing: how far each asset class is from the user's own target mix (no advice: the user sets the target)
+  function rebalance(S, meta, target) {
+    const cur = spread(S, meta, 'cls'), tot = cur.reduce((a, x) => a + x.v, 0), keys = new Set([...cur.map(x => x.k), ...Object.keys(target)]);
+    return [...keys].map(k => { const v = (cur.find(x => x.k === k) || { v: 0 }).v, want = (target[k] || 0) / 100;
+      return { k, now: tot ? v / tot : 0, want, move: r2(want * tot - v) }; }).sort((a, b) => Math.abs(b.move) - Math.abs(a.move));
+  }
+
+  // South African tax-free savings: tax year runs 1 March to end February; limits are settings (they change in budgets)
+  function tfsa(tx, acctIds, limits = { year: 36000, life: 500000 }) {
+    const years = {}; let life = 0;
+    for (const t of tx.filter(t => acctIds.includes(t.acct) && t.type === 'dep')) {
+      const [y, m] = t.date.split('-').map(Number), ty = m >= 3 ? y + 1 : y;   // tax year named by the year it ends
+      years[ty] = r2((years[ty] || 0) + t.amount); life += t.amount;
+    }
+    return { years: Object.entries(years).sort().map(([y, v]) => ({ y: +y, v, over: Math.max(0, r2(v - limits.year)), left: Math.max(0, r2(limits.year - v)) })),
+      life: r2(life), lifeLeft: Math.max(0, r2(limits.life - life)), limits };
+  }
+
+  // "what if" benchmark at a rate the user chooses: the same deposits and withdrawals, grown at that yearly rate
+  function benchmark(S, ratePct, today) {
+    let v = 0, last = null;
+    const grow = d => { if (last) v *= Math.pow(1 + ratePct / 100, (new Date(d) - new Date(last)) / 31557600000); last = d; };
+    for (const t of S.tx.filter(t => t.type === 'dep' || t.type === 'wd')) { grow(t.date); v += t.type === 'dep' ? t.amount : -t.amount; }
+    if (last) grow(today);
+    return r2(v);
+  }
+
+  // value over time: invested capital after every deposit/withdrawal, and statement values where a statement gave one
+  function history(S) {
+    const pts = []; let inv = 0;
+    for (const t of S.tx) if (t.type === 'dep' || t.type === 'wd') { inv += t.type === 'dep' ? t.amount : -t.amount; pts.push({ date: t.date, invested: r2(inv) }); }
+    const snaps = {}; S.tx.filter(t => t.type === 'snap').forEach(t => { snaps[t.date] = r2((snaps[t.date] || 0) + t.amount); });
+    return { invested: pts, values: Object.entries(snaps).sort().map(([date, v]) => ({ date, v })) };
+  }
+
+  // duplicate key: same account, day, type, instrument, quantity and amount
+  const key = t => [t.acct, t.date, t.type, t.sym || '', r2(t.qty || 0), r2(t.amount)].join('|');
+
+  return { TYPES, ACCT, holdings, cash, xirr, summary, spread, concentration, income, rebalance, tfsa, benchmark, history, key };
+})();
+if (typeof module !== 'undefined') module.exports = Invest;
+
+// Broker: reads investment statements (CSV / Excel-as-CSV / PDF text lines) into Invest transactions.
+// Every row gets a confidence. Anything uncertain is shown to the user to approve; nothing is filled in by guesswork.
+// To support a new broker: add a profile to PROFILES (header test + column names). No other code changes.
+const Broker = (() => {
+  const PROFILES = [
+    // { name: 'Example Broker', test: /trade date.*instrument code/i, cols: { date: 'Trade Date', sym: 'Instrument Code', ... } }
+  ];
+  const COLS = {   // generic column names, many brokers and languages (a "($)" or "(ZAR)" after a name is ignored)
+    date: /^((trade|settle(ment)?|transaction|value|effective|run|posting|book(ing)?) )?date$|^datum$|^fecha$|^data$|^date$|^when$/i,
+    type: /^((transaction )?(type|action|activity|transaction)|tipe|soort|what)$/i,
+    desc: /^(description|details|narrative|beskrywing|omskrywing|particulars)$/i,
+    sym: /^(symbol|ticker|code|kode|instrument code|share code|jse code|isin|security id|stock code|fund code|aandeel ?kode)$/i,
+    name: /^(instrument|security|name|share|fund|instrument name|security name|description of security|holding|aandeel|naam|security description)$/i,
+    qty: /^(qty|quantity|units|number of units|shares|no\.? of shares|aantal|eenhede|how many)$/i,
+    price: /^((unit |share |trade |avg |average )?price|unit cost|price per (unit|share)|prys|each)$/i,
+    amount: /^(amount|value|total|net amount|gross amount|consideration|market value|bedrag|waarde|net value|total amount)$/i,
+    fee: /^(fees?|fooie|brokerage|makelaarskoste|costs?|koste|charges|commission|total costs|transaction costs)$/i,
+    cur: /^(currency|ccy|curr|geldeenheid|money)$/i
+  };
+  const KW = [   // words -> transaction type (first match wins; order matters)
+    ['tax', /withholding|\btax\b|belasting|\bdwt\b/i], ['div', /dividend|distribution|\bdist\b|\bdiv\b/i], ['int', /interest|rente/i],
+    ['fee', /\bfees?\b|brokerage|admin|\bvat\b|\bstt\b|strate|ist levy|commission|charge|custody|platform|trading costs?|\bcosts?\b|fooi/i],
+    ['sell', /\bsell|\bsold|\bsale\b|redemption|verkoop/i], ['buy', /\bbuy|bought|purchase|reinvest|switch in|\bkoop/i],
+    ['wd', /withdraw|payout|onttrek/i], ['dep', /deposit|contribution|debit order|eft in|transfer in|bydrae|inbetaling/i]
+  ];
+  const typeOf = s => { for (const [t, re] of KW) if (re.test(s || '')) return t; return null; };
+  // numbers: the file's decimal mark is decided once for the whole file (dec), so "1.234" units and "1.234,56" amounts both read right
+  const num = (s, dec = '.') => { if (s == null) return null; let t = String(s).trim(); if (!t) return null;
+    const neg = /^\(.*\)$|^-|-$|DR$/i.test(t); t = t.replace(/[^\d.,]/g, ''); if (!t) return null;
+    const th = dec === '.' ? ',' : '.'; t = t.split(th).join(''); if (dec === ',') t = t.replace(',', '.');
+    const v = parseFloat(t); return isNaN(v) ? null : (neg ? -v : v); };
+  // a number on its own (units, or PDF text): both marks present -> the last is the decimal; one mark -> decimal,
+  // unless it is followed by exactly 3 digits and is not the file's decimal mark (then it groups thousands)
+  const smart = (s, dec = '.') => { if (s == null || !String(s).trim()) return null; const t = String(s).replace(/[^\d.,]/g, '');
+    const last = Math.max(t.lastIndexOf('.'), t.lastIndexOf(',')); if (last < 0) return num(s, '.');
+    const mk = t[last], other = mk === '.' ? ',' : '.', after = t.length - last - 1;
+    if (t.includes(other)) return num(s, mk);
+    if ((t.split(mk).length - 1) > 1) return num(s, other);
+    return num(s, after === 3 && mk !== dec ? other : mk); };
+  // dates: day-month or month-day order is decided once for the whole file; if the file never shows which, the
+  // dates are flagged for the user instead of being silently guessed
+  const MON = 'janfebmaraprmayjunjulaugsepoctnovdec';
+  function dateParts(s) { s = String(s || '').trim(); let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/); if (m) return { y: m[1], a: m[2], b: m[3], iso: true };
+    m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/); if (m) return { y: m[3].length === 2 ? '20' + m[3] : m[3], a: m[1], b: m[2] };
+    m = s.match(/^(\d{1,2})[\s-]+([A-Za-z]{3})[a-z]*\.?[\s-]+(\d{4})/); if (m) { const mo = MON.indexOf(m[2].toLowerCase()) / 3 + 1; if (mo > 0) return { y: m[3], a: m[1], b: String(mo), named: true }; }
+    return null; }
+  function dateOrder(list) {     // 'dmy', 'mdy' or null (can't tell)
+    let dmy = 0, mdy = 0; for (const s of list) { const p = dateParts(s); if (!p || p.iso || p.named) continue; if (+p.a > 12) dmy++; if (+p.b > 12) mdy++; }
+    return dmy && !mdy ? 'dmy' : mdy && !dmy ? 'mdy' : null; }
+  function date(s, order) { const p = dateParts(s); if (!p) return null; const pad = v => String(v).padStart(2, '0');
+    if (p.iso) return `${p.y}-${pad(p.a)}-${pad(p.b)}`; if (p.named) return `${p.y}-${pad(p.b)}-${pad(p.a)}`;
+    const [d, m] = order === 'mdy' ? [p.b, p.a] : [p.a, p.b]; if (+m > 12 || +d > 31) return null; return `${p.y}-${pad(m)}-${pad(d)}`; }
+  const ambiguous = s => { const p = dateParts(s); return !!p && !p.iso && !p.named && +p.a <= 12 && +p.b <= 12 && p.a !== p.b; };
+  function decimalOf(cells) { let c = 0, d = 0; for (const x of cells) { const t = String(x || '').trim(); if (/,\d{2}\)?-?$/.test(t)) c++; else if (/\.\d{2}\)?-?$/.test(t)) d++; } return c > d ? ',' : '.'; }
+  const CODE = /^[A-Z][A-Z0-9]{1,7}(\.[A-Z]{1,3})?$/;
+
+  function parseCsv(text) {
+    const L = text.split(/\r?\n/).slice(0, 30), cnt = c => Math.max(...L.map(l => l.split(c).length));
+    const d = [',', ';', '\t', '|'].sort((a, b) => cnt(b) - cnt(a))[0];
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) { const c = text[i];
+      if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+      else if (c === '"') q = true; else if (c === d) { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; } else cell += c; }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter(r => r.some(c => c.trim()));
+  }
+
+  // which row is the header, and which column is which
+  function mapColumns(rows) {
+    for (let i = 0; i < Math.min(rows.length, 25); i++) {
+      const h = rows[i].map(c => c.trim().replace(/\s*\([^)]*\)\s*$/, '')), prof = PROFILES.find(p => p.test.test(h.join(' ')));
+      const map = {};
+      if (prof) for (const [k, n] of Object.entries(prof.cols)) map[k] = h.indexOf(n);
+      else for (const [k, re] of Object.entries(COLS)) { const j = h.findIndex((c, j) => re.test(c) && !Object.values(map).includes(j)); if (j >= 0) map[k] = j; }
+      if (map.date >= 0 && (map.amount >= 0 || map.qty >= 0)) return { head: i, map, headers: h, profile: prof ? prof.name : null };
+    }
+    return null;
+  }
+
+  // one standard transaction, with notes on anything unsure
+  function make(o, acct, cur) {
+    const notes = []; let { date: d, type: t, sym, name, qty, price, amount, fee } = o;
+    qty = qty == null ? null : Math.abs(qty); price = price == null ? null : Math.abs(price); fee = fee == null ? 0 : Math.abs(fee);
+    const signed = amount; amount = amount == null ? null : Math.abs(amount);
+    if (!t) { if (qty && signed != null) { t = signed < 0 ? 'buy' : 'sell'; notes.push('type guessed from the sign of the amount'); } else notes.push('type unknown'); }
+    if (t && o.typeConflict) notes.push('the words and the +/- sign disagree');
+    if ((t === 'buy' || t === 'sell') && !sym && !name) notes.push('no share or fund name');
+    if ((t === 'buy' || t === 'sell') && !sym && name) notes.push('no share code (name used)');
+    if ((t === 'buy' || t === 'sell') && !qty) notes.push('no quantity');
+    if (amount == null && qty && price) { amount = Math.round(qty * price * 100) / 100; notes.push('amount worked out as quantity × price'); }
+    if (amount == null) notes.push('no amount');
+    if (o.qtyRaw && price && amount && Math.abs(qty * price - amount) > Math.max(.02, amount * .002)) {
+      for (const alt of [num(o.qtyRaw, '.'), num(o.qtyRaw, ',')].map(x => x == null ? null : Math.abs(x)))
+        if (alt && [0, fee, -fee].some(f => Math.abs(alt * price + f - amount) <= Math.max(.02, amount * .002))) { qty = alt; break; }
+    }
+    if (qty && price && amount) { const g = qty * price, tol = Math.max(.02, amount * .002);
+      if (Math.abs(g - amount) > tol && Math.abs(g + fee - amount) > tol && Math.abs(g - fee - amount) > tol) notes.push('quantity × price does not match the amount'); }
+    if (!d) notes.push('no date'); else if (o.dateUnsure) notes.push('day and month order unclear: check the date');
+    const tx = { date: d, type: t, sym: (sym || '').toUpperCase().trim() || (name ? name.trim().slice(0, 18).toUpperCase() : ''), name: (name || sym || '').trim(), qty: qty || 0,
+      price: price || (qty && amount ? Math.round(amount / qty * 10000) / 10000 : 0), amount: amount || 0, fee, cur, acct };
+    return { tx, notes, sure: !notes.some(n => /unknown|no amount|no date|no quantity|no share|does not match|guessed|unclear|disagree/.test(n)) };
+  }
+
+  function fromCsv(text, acct, cur) {
+    const rows = parseCsv(text), M = mapColumns(rows);
+    if (!M) return { error: "I couldn't find a date column and an amount or quantity column in this file." };
+    const body = rows.slice(M.head + 1), g = (r, k) => M.map[k] >= 0 ? r[M.map[k]] : null;
+    const order = dateOrder(body.map(r => g(r, 'date'))), dec = decimalOf(body.flatMap(r => [g(r, 'amount'), g(r, 'price')]));
+    const typeCol = M.map.type >= 0 ? 'type' : 'desc', nameCol = M.map.name >= 0 ? 'name' : (M.map.type >= 0 && M.map.desc >= 0 ? 'desc' : null), out = [];
+    for (const r of body) {
+      const d = date(g(r, 'date'), order); if (!d) continue;
+      const words = g(r, typeCol) || '', t = typeOf(words) || typeOf(g(r, 'desc')), amt = num(g(r, 'amount'), dec);
+      const sign = amt == null ? 0 : Math.sign(amt), signedFile = body.some(x => /^\s*[-(]|-\s*$/.test(g(x, 'amount') || ''));
+      const conflict = signedFile && t && sign && ((['buy', 'fee', 'wd', 'tax'].includes(t) && sign > 0) || (['sell', 'div', 'int', 'dep'].includes(t) && sign < 0));
+      let sym = g(r, 'sym'); if (!sym && M.map.sym === undefined) { const c = words.split(/\s+/).find(w => CODE.test(w) && !typeOf(w)); if (c) sym = c; }
+      out.push(make({ date: d, dateUnsure: !order && ambiguous(g(r, 'date')), type: t, typeConflict: conflict, sym, name: nameCol ? g(r, nameCol) : (typeCol === 'desc' ? words.replace(KW.find(k => k[0] === t)?.[1] || /$^/, '').trim() || null : null),
+        qty: smart(g(r, 'qty'), dec), qtyRaw: g(r, 'qty'), price: num(g(r, 'price'), dec), amount: amt, fee: num(g(r, 'fee'), dec) }, acct, (g(r, 'cur') || cur || '').trim() || cur));
+    }
+    return { rows: out, columns: M, dateOrder: order, decimal: dec };
+  }
+
+  // PDF/photo text lines: date first, words (with the share code if shown), then numbers.
+  // Buys and sells: quantity, price, amount. Everything else: the last number is the amount.
+  const LDATE = /^\s*(\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}|\d{1,2}[\s-]+[A-Za-z]{3}[a-z]*\.?[\s-]+\d{4})\s+(.*)$/;
+  const LNUM = /(?:^|\s)(\(?-?(?:\d{1,3}(?:[ ,. ]\d{3})+|\d+)(?:[.,]\d+)?\)?-?)(?=\s|$)/g;
+  function fromLines(lines, acct, cur) {
+    const dl = lines.map(l => l.match(LDATE)).filter(Boolean), order = dateOrder(dl.map(m => m[1]));
+    const dec = decimalOf(dl.flatMap(m => [...m[2].matchAll(LNUM)].map(x => x[1]))), out = [];
+    for (const m of dl) {
+      const d = date(m[1], order); if (!d) continue;
+      let all = [...m[2].matchAll(LNUM)].map(x => ({ s: x[1], at: x.index, end: x.index + x[0].length })); if (!all.length) continue;
+      let k = all.length - 1; if (m[2].slice(all[k].end).trim()) continue;            // numbers must end the line
+      while (k > 0 && !m[2].slice(all[k - 1].end, all[k].at).trim()) k--;              // keep only the run of numbers at the end
+      const nums = all.slice(k);
+      const words = m[2].slice(0, nums[0].at).trim(), t = typeOf(words), v = nums.map(n => (/^\(.*\)$|^-|-$/.test(n.s) ? -1 : 1) * Math.abs(smart(n.s, dec)));
+      const codes = words.split(/\s+/).filter(w => CODE.test(w) && !typeOf(w)), code = codes[codes.length - 1];   // several candidates (e.g. "MSCI ... STXWDM"): flagged below
+      const name = words.replace(KW.find(k => k[0] === t)?.[1] || /$^/, '').replace(code || /$^/, '').replace(/\s{2,}/g, ' ').trim() || null;
+      const o = { date: d, dateUnsure: !order && ambiguous(m[1]), type: t, sym: code, name, amount: v[v.length - 1] };
+      if (v.length >= 3 && (t === 'buy' || t === 'sell')) { o.qty = v[v.length - 3]; o.qtyRaw = nums[nums.length - 3].s; o.price = v[v.length - 2]; }
+      const r = make(o, acct, cur); if (codes.length > 1 && (t === 'buy' || t === 'sell' || t === 'div')) { r.notes.push(`share code unclear (${codes.join(' or ')})`); r.sure = false; }
+      if (v.length < 3 && (t === 'buy' || t === 'sell')) { r.notes.push('quantity not found on this line'); r.sure = false; }
+      out.push(r);
+    }
+    return { rows: out, dateOrder: order };
+  }
+
+  // compare with what is already saved: mark duplicates so they are not added twice
+  function dedupe(rows, existing) {
+    const have = new Set(existing.map(Invest.key)), seen = new Set();
+    for (const r of rows) { const k = Invest.key(r.tx); r.dup = have.has(k) || seen.has(k); seen.add(k); }
+    return rows;
+  }
+
+  return { PROFILES, parseCsv, mapColumns, fromCsv, fromLines, dedupe, typeOf, num, date, dateOrder };
+})();
+if (typeof module !== 'undefined') module.exports = Broker;
+
+// Plans: which features each subscription tier opens. Edit PLANS to change names, prices or what is included.
+// A paid plan is unlocked by a licence key: a small signed note ({plan, id, exp}) made with the private key that
+// only the owner keeps (see tools/make-licence.py). The app checks the signature with the public key below, so a
+// key cannot be made up or edited. Honest limit: the app runs on the user's device, so a skilled person could
+// still change their own copy of the code. Full server-side protection comes with the hosted version (README).
+const Plans = (() => {
+  const PLANS = {
+    basic:    { name: 'Basic',    price: 'Free',        features: ['expenses'] },
+    standard: { name: 'Standard', price: 'R49 / month', features: ['expenses', 'budgets'] },
+    premium:  { name: 'Premium',  price: 'R99 / month', features: ['expenses', 'budgets', 'invest'] }
+  };
+  const FEATURE_NAME = { expenses: 'Monthly expense tracking', budgets: 'Budgets & savings plans', invest: 'Investment tracker' };
+  const LAUNCH_ALL_OPEN = true;      // free launch period: every feature open to everyone. Set to false to start charging.
+  const PUBLIC_KEY = {"kty": "EC", "crv": "P-256", "x": "dVsgx3pad4YylCyaRsQXyQM8Bw3WGhl_oqe75kKvz44", "y": "wI2kME-CcPi5JnlRdfz0ym-UihNt2BVOxzCSqR_NmmY", "ext": true};          // filled in by tools/make-licence.py --init (a JWK object)
+  const KEY = 'ss-licence';
+  let state = { plan: LAUNCH_ALL_OPEN ? 'premium' : 'basic', licence: null, why: LAUNCH_ALL_OPEN ? 'launch' : 'free' };
+
+  const b64 = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+  async function verify(code) {
+    try {
+      if (!PUBLIC_KEY || !crypto.subtle) return null;
+      const [body, sig] = String(code).trim().split('.'); if (!body || !sig) return null;
+      const k = await crypto.subtle.importKey('jwk', PUBLIC_KEY, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+      if (!await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, k, b64(sig), new TextEncoder().encode(body))) return null;
+      const L = JSON.parse(new TextDecoder().decode(b64(body)));
+      if (!PLANS[L.plan] || (L.exp && L.exp < new Date().toISOString().slice(0, 10))) return null;
+      return L;
+    } catch (e) { return null; }
+  }
+  async function load() {
+    let code = null; try { code = localStorage.getItem(KEY); } catch (e) {}
+    const L = code ? await verify(code) : null;
+    if (L) state = { plan: L.plan, licence: L, why: 'licence' };
+    return state;
+  }
+  async function enter(code) { const L = await verify(code); if (!L) return false; try { localStorage.setItem(KEY, code.trim()); } catch (e) {} state = { plan: L.plan, licence: L, why: 'licence' }; return true; }
+  const can = f => LAUNCH_ALL_OPEN || PLANS[state.plan].features.includes(f);
+  const needed = f => Object.entries(PLANS).find(([, p]) => p.features.includes(f))[0];
+  return { PLANS, FEATURE_NAME, LAUNCH_ALL_OPEN, load, enter, can, needed, get state() { return state; } };
+})();
+if (typeof module !== 'undefined') module.exports = Plans;
+
+// Investments section (screen code). Uses Invest (maths), Broker (import), Plans (who may open it).
+const InvestUI = (() => {
+  const esc = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const short = (v, cur) => cur + ' ' + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + 'm' : Math.abs(v) >= 1e4 ? Math.round(Math.abs(v) / 1e3) + 'k' : Math.round(Math.abs(v)).toLocaleString('en-ZA'));
+  const KEY = 'ss-invest', $ = id => document.getElementById(id), r2 = v => Math.round(v * 100) / 100;
+  const pc = v => v == null ? '–' : (v * 100).toFixed(1).replace('.', ',') + '%';
+  const today = () => new Date().toISOString().slice(0, 10);
+  const CLS = ['Shares', 'ETF', 'Unit trust', 'Bonds', 'Property', 'Cash', 'Other'];
+  let D = null, VIEW = 'all', TAB = 'ov', REVIEW = null, SPREAD = 'cls';
+  const blank = () => ({ accounts: [], tx: [], prices: {}, meta: {}, target: {}, limits: { year: 36000, life: 500000 }, bench: 10, docs: [] });
+  function load() { try { D = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { D = blank(); } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { alert('This device is out of space for saved investment data.'); } }
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const acct = id => D.accounts.find(a => a.id === id);
+  const fmt = (v, cur) => v == null ? '–' : money(r2(v), cur || 'R');
+
+  // originals are kept in the browser's file store (IndexedDB), never uploaded
+  function db() { return new Promise((ok, no) => { const r = indexedDB.open('ss-docs', 1); r.onupgradeneeded = () => r.result.createObjectStore('f'); r.onsuccess = () => ok(r.result); r.onerror = no; }); }
+  async function keepDoc(id, file) { try { const d = await db(); d.transaction('f', 'readwrite').objectStore('f').put(file, id); } catch (e) {} }
+  async function getDoc(id) { const d = await db(); return new Promise(ok => { const q = d.transaction('f').objectStore('f').get(id); q.onsuccess = () => ok(q.result); q.onerror = () => ok(null); }); }
+
+  // which accounts are in view, and their currency (sums never mix currencies: no exchange rate is invented)
+  function scope() {
+    const ids = VIEW === 'all' ? D.accounts.map(a => a.id) : [VIEW];
+    const curs = [...new Set(ids.map(i => acct(i).cur))];
+    return { ids, curs, cur: curs[0] || 'R' };
+  }
+
+  function render() {
+    load(); const box = $('invbody');
+    if (!Plans.can('invest')) { box.innerHTML = upsell(); return; }
+    let h = '';
+    if (!D.accounts.length && TAB !== 'sim') TAB = 'acc';
+    if (TAB !== 'acc' && D.accounts.length > 1) h += `<div class="row" style="margin-bottom:12px"><label class="small" for="invacct">Showing</label><select id="invacct"><option value="all">All accounts</option>${D.accounts.map(a => `<option value="${a.id}"${VIEW === a.id ? ' selected' : ''}>${esc(a.name)} (${Invest.ACCT[a.type]})</option>`).join('')}</select></div>`;
+    h += TAB === 'ov' ? overview() : TAB === 'hold' ? holdingsTab() : TAB === 'inc' ? incomeTab() : TAB === 'sim' ? simTab() : accountsTab();
+    box.innerHTML = h; wire();
+    $('ptitle').textContent = { ov: 'Portfolio', hold: 'Holdings', inc: 'Dividends & income', sim: 'Growth simulator', acc: 'Accounts & import' }[TAB];
+    document.querySelectorAll('#mainnav button[data-it]').forEach(b => b.classList.toggle('on', b.dataset.it === TAB));
+  }
+
+  function upsell() {
+    const need = Plans.needed('invest');
+    return `<div class="card"><h3>Investment tracker</h3><p>See all your investment accounts in one place: value, growth, dividends, fees and how your money is spread. Part of the <b>${Plans.PLANS[need].name}</b> plan (${Plans.PLANS[need].price}).</p>
+      <div class="row"><input type="text" id="lickey" placeholder="Paste your licence key" style="flex:1;min-width:220px"><button id="licgo">Unlock</button></div><p class="small" id="licmsg"></p></div>`;
+  }
+
+  // ---------- overview
+  function overview() {
+    const { ids, curs, cur } = scope();
+    if (curs.length > 1) return `<div class="card"><p>These accounts use different currencies (${curs.join(', ')}). Pick one account above: totals are never mixed across currencies, because that would need an exchange rate the app does not have.</p></div>`;
+    const S = Invest.summary(D, ids, today());
+    if (!S.tx.length) return `<div class="card"><p>No transactions yet. Go to <a href="#" data-goto="acc">Accounts &amp; import</a> to add a statement.</p></div>`;
+    const C = Invest.concentration(S), I = Invest.income(S, today()), Hs = Invest.history(S), B = Invest.benchmark(S, D.bench, today());
+    const miss = S.missing.length ? `<div class="status warn" style="margin-bottom:12px">${S.missing.length} holding${S.missing.length > 1 ? 's have' : ' has'} no price yet (${S.missing.map(h => esc(h.sym)).join(', ')}), so ${S.missing.length > 1 ? 'they are' : 'it is'} left out of the value. Add the price under <a href="#" data-goto="hold">Holdings</a>.</div>` : '';
+    const plain = `You put in <b>${fmt(S.invested, cur)}</b> (after withdrawals). It is now worth <b>${fmt(S.total, cur)}</b>, ${S.gain >= 0 ? 'a gain' : 'a loss'} of <b class="${S.gain >= 0 ? 'in' : 'out'}">${fmt(Math.abs(S.gain), cur)}</b>${S.gainPct != null ? ` (${pc(S.gainPct)})` : ''}. ${S.yearly != null ? `That is about <b>${pc(S.yearly)} a year</b>, counting when you put each amount in.` : ''}`;
+    let h = miss + `<div class="plain">${plain}</div><div class="kpis" style="margin:12px 0 16px">
+      <div class="stat hero"><div class="l">Total value</div><div class="v">${fmt(S.total, cur)}</div></div>
+      <div class="stat"><div class="l">Invested</div><div class="v">${fmt(S.invested, cur)}</div></div>
+      <div class="stat"><div class="l">Gain or loss</div><div class="v ${S.gain >= 0 ? 'in' : 'out'}">${fmt(S.gain, cur)}</div></div>
+      <div class="stat"><div class="l">Yearly return</div><div class="v">${pc(S.yearly)}</div></div>
+      <div class="stat"><div class="l">Income (12 months)</div><div class="v in">${fmt(I.last12, cur)}</div></div></div>
+      <div class="dash">
+      <div class="card s8"><h3>Growth</h3>${line(Hs, cur)}<p class="small">Grey = money you put in. Blue dots = value shown on your statements. Values between statements are not guessed.</p></div>
+      <div class="card s4"><h3>Where the gain came from</h3><table>
+        <tr><td>Growth on holdings (not sold)</td><td class="n">${fmt(S.unrealised, cur)}</td></tr><tr><td>Gains on sales</td><td class="n">${fmt(S.realised, cur)}</td></tr>
+        <tr><td>Dividends</td><td class="n in">${fmt(S.dividends, cur)}</td></tr><tr><td>Interest</td><td class="n in">${fmt(S.interest, cur)}</td></tr>
+        <tr><td>Account fees</td><td class="n out">${fmt(-S.acctFees, cur)}</td></tr><tr><td>Tax</td><td class="n out">${fmt(-S.taxes, cur)}</td></tr>
+        <tr><td>Cash in the account</td><td class="n">${fmt(S.cash, cur)}</td></tr></table>
+        <p class="small">These add up to your gain. Trading costs (${fmt(S.tradeFees, cur)}) are already inside the growth and sale figures. All fees together: ${fmt(S.fees, cur)}, ${pc(S.costPct)} of what you put in.</p></div>
+      <div class="card s12"><h3>How your money is spread</h3><div class="tabs">${SPREADS.map(([k, n]) => `<button data-sp="${k}" class="${SPREAD === k ? 'on' : ''}">${n}</button>`).join('')}</div>${donut(Invest.spread(S, effMeta(S), SPREAD), cur)}
+        <p class="small">"Not set" = details not filled in yet. Add them under Holdings; the app does not guess what a fund holds.</p></div>
+      <div class="card s6"><h3>Your portfolio at a glance</h3>${shape(S, I, C)}</div>
+      <div class="card s6"><h3>Risk check</h3>${C.top ? `<p>Your biggest holding, <b>${esc(C.top.name)}</b>, is <b>${pc(C.top.pct)}</b> of the portfolio. Your top 5 are ${pc(C.top5Pct)}.</p>
+        <p class="small">${C.top.pct > .2 ? '<span class="warn">More than a fifth in one holding means one company or fund can move your whole result a lot.</span>' : 'No single holding is more than a fifth of the portfolio.'} ${C.count} holding${C.count === 1 ? '' : 's'} in total.</p>` : '<p class="small">Add prices to see this.</p>'}
+        <h4 style="margin:14px 0 6px">Compared with a steady rate</h4><div class="row"><label class="small" for="bench">If the same deposits had grown at</label><input type="number" id="bench" value="${D.bench}" step="0.5" style="width:80px"><span class="small">% a year</span></div>
+        <p>They would now be <b>${fmt(B, cur)}</b>; yours are <b>${fmt(S.total, cur)}</b> (${S.total >= B ? '<span class="in">ahead</span>' : '<span class="out">behind</span>'} by ${fmt(Math.abs(S.total - B), cur)}).</p></div>
+      <div class="card s12"><h3>Your target mix</h3><p class="small">Type the mix you want (it should add up to 100%). The app shows how far you are from it. This is your own plan, not advice.</p>${rebal(S, cur)}</div>
+      </div><div class="row"><button class="ghost" id="invcsv">Download report (CSV)</button><button class="ghost" id="invprint">Print / save as PDF</button></div>`;
+    return h;
+  }
+  const SPREADS = [['hold', 'Holdings'], ['cls', 'Type'], ['sector', 'Sector'], ['country', 'Country'], ['region', 'Region'], ['market', 'Market'], ['cur', 'Currency']];
+  const PAL = ['#1f5fa8', '#2f9e8f', '#d08a2e', '#7a5cc2', '#c4513f', '#5c8a2f', '#b8559a', '#3f8fc4', '#8a6d3b', '#6b7280'];
+  // well-known funds: filled in from the fund's own published mandate (what it is set up to track), never from guesses
+  // about its current weights. Shown as suggestions; anything the user types wins.
+  const KNOWN = {
+    STX40:  { cls: 'ETF', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'Mixed (top 40 SA companies)' },
+    STX500: { cls: 'ETF', country: 'United States', region: 'North America', cur: 'USD', sector: 'Mixed (S&P 500)' },
+    SYG500: { cls: 'ETF', country: 'United States', region: 'North America', cur: 'USD', sector: 'Mixed (S&P 500)' },
+    STXNDQ: { cls: 'ETF', country: 'United States', region: 'North America', cur: 'USD', sector: 'Mostly technology (Nasdaq 100)' },
+    STXWDM: { cls: 'ETF', country: 'Global (developed)', region: 'Global', cur: 'Mixed', sector: 'Mixed (MSCI World)' },
+    STXEMG: { cls: 'ETF', country: 'Global (emerging)', region: 'Emerging markets', cur: 'Mixed', sector: 'Mixed (MSCI Emerging Markets)' },
+    STXPRO: { cls: 'Property', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'Property' }
+  };
+  const DEV = /united states|usa|canada|united kingdom|uk|germany|france|netherlands|switzerland|japan|australia|global \(developed\)|ireland|sweden|denmark|norway|spain|italy|belgium|new zealand|singapore|hong kong/i;
+  const EMG = /south africa|china|india|brazil|mexico|indonesia|taiwan|korea|turkey|saudi|poland|chile|global \(emerging\)|egypt|thailand|malaysia|philippines/i;
+  function effMeta(S) {
+    const M = {};
+    for (const h of S.open) { const m = { ...(KNOWN[h.sym] || {}), ...Object.fromEntries(Object.entries(D.meta[h.sym] || {}).filter(([, v]) => v)) };
+      m.hold = h.name && h.name !== h.sym ? h.sym + ' · ' + h.name : h.sym;
+      m.market = m.country ? (EMG.test(m.country) ? 'Emerging markets' : DEV.test(m.country) ? 'Developed markets' : null) : null;
+      M[h.sym] = m; }
+    return M;
+  }
+  function donut(list, cur) {
+    if (!list.length) return '<p class="small">Add prices to see this.</p>';
+    const R = 80, r = 52, C = 100; let a = -Math.PI / 2, paths = '';
+    const top = list.slice(0, 9), rest = list.slice(9), L = rest.length ? [...top, { k: 'Other', v: rest.reduce((s, x) => s + x.v, 0), pct: rest.reduce((s, x) => s + x.pct, 0) }] : top;
+    L.forEach((x, i) => { const b = a + Math.max(x.pct, 0.0001) * 2 * Math.PI, big = b - a > Math.PI ? 1 : 0, col = x.k === 'Not set' ? '#c3c8d1' : PAL[i % PAL.length];
+      const P = (rad, ang) => `${(C + rad * Math.cos(ang)).toFixed(2)},${(C + rad * Math.sin(ang)).toFixed(2)}`;
+      paths += L.length === 1 ? `<circle cx="${C}" cy="${C}" r="${(R + r) / 2}" fill="none" stroke="${col}" stroke-width="${R - r}"/>` : `<path d="M${P(R, a)} A${R},${R} 0 ${big} 1 ${P(R, b)} L${P(r, b)} A${r},${r} 0 ${big} 0 ${P(r, a)}Z" fill="${col}"><title>${esc(x.k)}: ${pc(x.pct)}</title></path>`;
+      x.col = col; a = b; });
+    const big = L[0];
+    return `<div class="donutwrap"><svg viewBox="0 0 200 200" class="donut" role="img" aria-label="Spread chart">${paths}<text x="100" y="96" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">${pc(big.pct)}</text><text x="100" y="114" text-anchor="middle" font-size="9.5" fill="var(--muted)">${esc(big.k.length > 22 ? big.k.slice(0, 21) + '…' : big.k)}</text></svg>
+      <div class="legend">${L.map(x => `<div><span class="dot" style="background:${x.col}"></span><span class="lk">${esc(x.k)}</span><span class="small">${fmt(x.v, cur)}</span><b>${pc(x.pct)}</b></div>`).join('')}</div></div>`;
+  }
+  // five simple 0-5 scores from the user's own numbers, drawn as one shape: bigger and rounder = more balanced
+  function shape(S, I, C) {
+    const regions = new Set(Object.values(effMeta(S)).map(m => m.region).filter(Boolean)).size;
+    const sc = [
+      ['Spread', C.count ? Math.min(5, (C.count >= 10 ? 3 : C.count >= 5 ? 2 : C.count >= 2 ? 1 : 0) + (C.top && C.top.pct < .2 ? 2 : C.top && C.top.pct < .35 ? 1 : 0)) : 0, C.top ? `${C.count} holdings; biggest is ${pc(C.top.pct)}` : 'no prices yet'],
+      ['Regions', Math.min(5, regions * 1.25), `${regions || 'no'} region${regions === 1 ? '' : 's'} set`],
+      ['Low costs', S.costPct == null ? 0 : S.costPct < .005 ? 5 : S.costPct < .01 ? 4 : S.costPct < .02 ? 3 : S.costPct < .04 ? 2 : 1, `fees ${pc(S.costPct)} of money put in`],
+      ['Income', I.yieldPct == null ? 0 : Math.min(5, I.yieldPct / .008), `${pc(I.yieldPct)} paid out in 12 months`],
+      ['Growth', S.yearly == null ? 0 : Math.max(0, Math.min(5, (S.yearly + .02) / .03)), S.yearly == null ? 'needs prices for all holdings' : `${pc(S.yearly)} a year so far`]
+    ];
+    const C0 = 110, Rr = 80, n = sc.length, pt = (i, v) => { const ang = -Math.PI / 2 + i * 2 * Math.PI / n; return [C0 + Rr * v / 5 * Math.cos(ang), C0 + Rr * v / 5 * Math.sin(ang)]; };
+    const grid = [1, 2, 3, 4, 5].map(l => `<polygon points="${sc.map((_, i) => pt(i, l).join(',')).join(' ')}" fill="none" stroke="var(--line)"/>`).join('');
+    const poly = sc.map(([, v], i) => pt(i, Math.max(.3, v)).map(x => x.toFixed(1)).join(',')).join(' ');
+    const avg = sc.reduce((a, x) => a + x[1], 0) / n, col = avg >= 3.5 ? '#2f9e8f' : avg >= 2 ? '#d08a2e' : '#c4513f';
+    const labels = sc.map(([k], i) => { const [x, y] = pt(i, 6.3); return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${k}</text>`; }).join('');
+    return `<div class="donutwrap"><svg viewBox="-34 -4 288 228" class="donut" role="img" aria-label="Portfolio shape">${grid}<polygon points="${poly}" fill="${col}55" stroke="${col}" stroke-width="2"/>${labels}</svg>
+      <div class="legend">${sc.map(([k, v, why]) => `<div><span class="lk"><b>${k}</b><br><span class="small">${why}</span></span><b>${Math.round(v * 10) / 10}/5</b></div>`).join('')}</div></div>
+      <p class="small">A quick picture of your own numbers: a bigger, rounder shape means more balanced. It is not a rating of any investment and not advice.</p>`;
+  }
+
+  // ---------- growth simulator (same model as Savings & growth: monthly compounding, fee on the value, inflation)
+  let SIM = null;
+  function simTab() {
+    const { ids, curs, cur } = scope(), S = curs.length === 1 && ids.length ? Invest.summary(D, ids, today()) : null;
+    if (!SIM) { const yr = new Date(); yr.setFullYear(yr.getFullYear() - 1); const f = yr.toISOString().slice(0, 10);
+      const dep12 = S ? S.tx.filter(t => t.type === 'dep' && t.date > f).reduce((a, t) => a + t.amount, 0) : 0;
+      SIM = { start: S ? Math.round(S.total) : 0, monthly: Math.round(dep12 / 12) || 1000, years: 20, ret: 10, fee: .5, inf: 4.5, rise: 5, spread: 3, goal: 1000000 }; }
+    const F = [['start', 'Starting amount', 1000, 'today\'s portfolio value'], ['monthly', 'Add every month', 100, 'from your deposits in the last 12 months'], ['years', 'Years', 1, ''], ['ret', 'Return % a year', .5, 'before fees and inflation'], ['fee', 'Fees % a year', .1, ''], ['inf', 'Inflation %', .5, ''], ['rise', 'Increase monthly amount % a year', 1, '']];
+    return `<div class="card"><h3>What could your investments grow to?</h3><p class="small">Starts from what your portfolio is worth today${S ? '' : ' (add accounts to fill this in)'}. Change any number; the picture updates as you type.</p>
+      <div class="calcgrid">${F.map(([k, l, st, hint]) => `<label class="stat" style="display:block"><span class="l">${l}</span><input data-sim="${k}" type="number" step="${st}" min="0" value="${SIM[k]}" style="width:100%;font-size:1.1rem;padding:6px 8px;margin-top:4px">${hint ? `<span class="small">${hint}</span>` : ''}</label>`).join('')}</div>
+      <label class="small" style="display:block;margin:10px 0"><input type="checkbox" id="simreal"> Also show the end value in today's money (after inflation)</label>
+      <div class="kpis" id="simout" style="margin:10px 0"></div><div id="simchart"></div>
+      <div class="row" style="margin-top:6px"><span class="small">Shaded band: if returns are</span><input type="number" data-sim="spread" value="${SIM.spread}" step="0.5" min="0" style="width:70px"><span class="small">% a year lower or higher than you chose.</span></div></div>
+      <div class="card"><h3>Reach a goal</h3><div class="row"><span>To have</span><input type="number" data-sim="goal" value="${SIM.goal}" step="10000" style="width:150px"><span>in today's money after ${SIM.years} years, you would need to add about</span><b id="simneed"></b><span>a month.</span></div>
+      <p class="small">An illustration with steady returns. Real markets go up and down, and past returns don't promise future ones. Not financial advice.</p></div>`;
+  }
+  function simCalc(cur) {
+    const o = { start: SIM.start, monthly: SIM.monthly, years: Math.max(1, Math.min(60, SIM.years)), ret: SIM.ret / 100, fee: SIM.fee / 100, inf: SIM.inf / 100, rise: SIM.rise / 100 };
+    const real = $('simreal').checked, M = Model.compound(o), lo = Model.compound({ ...o, ret: Math.max(-.5, o.ret - SIM.spread / 100) }), hi = Model.compound({ ...o, ret: o.ret + SIM.spread / 100 });
+    const dv = r => r.value;
+    $('simout').innerHTML = `<div class="stat hero"><div class="l">After ${o.years} years</div><div class="v in">${fmt(M.final, cur)}</div><div class="small">${real ? `worth about <b>${fmt(M.real, cur)}</b> in today's money` : 'in rands of that time'}</div></div>
+      <div class="stat"><div class="l">You put in</div><div class="v">${fmt(M.paid, cur)}</div></div><div class="stat"><div class="l">Growth on top</div><div class="v in">${fmt(M.growth, cur)}</div></div>
+      <div class="stat"><div class="l">Fees cost you</div><div class="v out">${fmt(-M.feeCost, cur)}</div></div><div class="stat"><div class="l">Range</div><div class="v" style="font-size:1.05rem">${short(lo.final, cur)} – ${short(hi.final, cur)}</div></div>`;
+    const W = 700, H = 240, P = 54, max = Math.max(1, ...hi.rows.map(r => Math.max(dv(r), r.paid))), X = y => P + y / o.years * (W - P - 12), Y = v => H - 26 - v / max * (H - 44);
+    const path = (rows, f) => rows.map((r, j) => `${j ? 'L' : 'M'}${X(r.y).toFixed(1)},${Y(f(r)).toFixed(1)}`).join('');
+    const band = path(hi.rows, dv) + ' ' + lo.rows.slice().reverse().map(r => `L${X(r.y).toFixed(1)},${Y(dv(r)).toFixed(1)}`).join('') + 'Z';
+    $('simchart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Projected growth"><path d="${band}" fill="#1f5fa822"/><path d="${path(M.rows, r => r.paid)}" fill="none" stroke="#9aa3b5" stroke-width="2" stroke-dasharray="5 4"/><path d="${path(M.rows, dv)}" fill="none" stroke="#1f5fa8" stroke-width="3"/>
+      ${[0, .25, .5, .75, 1].map(f => Math.round(o.years * f)).map(y => `<text x="${X(y)}" y="${H - 8}" font-size="12" text-anchor="middle" fill="var(--muted)">${y}y</text>`).join('')}
+      ${[0, .5, 1].map(f => `<text x="${P - 6}" y="${Y(max * f) + 4}" font-size="11" text-anchor="end" fill="var(--muted)">${short(max * f, cur)}</text>`).join('')}</svg>
+      <p class="small"><span style="color:#1f5fa8">━</span> your investment · <span style="color:#9aa3b5">┅</span> what you put in · shaded = lower and higher returns</p>`;
+    $('simneed').textContent = fmt(Model.needed(SIM.goal || 0, o), cur);
+  }
+  function line(Hs, cur) {
+    const pts = [...Hs.invested.map(p => ({ d: p.date, v: p.invested })), ...Hs.values.map(p => ({ d: p.date, v: p.v }))];
+    if (pts.length < 2) return '<p class="small">A chart appears once there are two or more dates.</p>';
+    const W = 640, H = 200, ds = pts.map(p => +new Date(p.d)), x0 = Math.min(...ds), x1 = Math.max(...ds) || x0 + 1, vmax = Math.max(...pts.map(p => p.v), 1);
+    const X = d => 40 + (W - 50) * ((+new Date(d) - x0) / Math.max(1, x1 - x0)), Y = v => H - 20 - (H - 40) * v / vmax;
+    let inv = '', last = null; Hs.invested.forEach(p => { inv += (inv ? ` L${X(p.date).toFixed(1)},${Y(last).toFixed(1)} L` : 'M') + `${X(p.date).toFixed(1)},${Y(p.invested).toFixed(1)}`; last = p.invested; });
+    if (last != null) inv += ` L${W - 10},${Y(last).toFixed(1)}`;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Money put in and statement values over time"><line x1="40" x2="${W - 10}" y1="${H - 20}" y2="${H - 20}" stroke="var(--line)"/>
+      <text x="36" y="${Y(vmax) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${short(vmax, cur)}</text><path d="${inv}" fill="none" stroke="#9aa3b5" stroke-width="2"/>
+      ${Hs.values.map(p => `<circle cx="${X(p.date).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="4" fill="var(--maroon)"><title>${p.date}: ${fmt(p.v, cur)}</title></circle>`).join('')}
+      <text x="40" y="${H - 4}" font-size="10" fill="var(--muted)">${new Date(x0).toISOString().slice(0, 7)}</text><text x="${W - 10}" y="${H - 4}" text-anchor="end" font-size="10" fill="var(--muted)">${new Date(x1).toISOString().slice(0, 7)}</text></svg>`;
+  }
+  function bars(list, cur) {
+    if (!list.length) return '<p class="small">Add prices to see this.</p>';
+    return list.map(x => `<div style="margin:6px 0"><div class="row" style="justify-content:space-between;gap:8px"><span>${esc(x.k)}</span><span class="small">${fmt(x.v, cur)} · <b>${pc(x.pct)}</b></span></div><div style="height:8px;background:var(--card2);border-radius:4px"><div style="height:8px;width:${(x.pct * 100).toFixed(1)}%;background:var(--maroon);border-radius:4px"></div></div></div>`).join('');
+  }
+  function rebal(S, cur) {
+    const R = Invest.rebalance(S, D.meta, D.target), sum = Object.values(D.target).reduce((a, v) => a + (+v || 0), 0);
+    return `<table><tr><th>Type</th><th class="n">Now</th><th class="n">Target %</th><th class="n">To reach the target</th></tr>${[...new Set([...CLS, ...R.map(r => r.k)])].filter(k => R.find(r => r.k === k) || D.target[k]).map(k => { const r = R.find(x => x.k === k) || { now: 0, move: 0 };
+      return `<tr><td>${esc(k)}</td><td class="n">${pc(r.now)}</td><td class="n"><input type="number" data-tg="${esc(k)}" value="${D.target[k] ?? ''}" min="0" max="100" style="width:70px"></td><td class="n ${r.move > 0 ? 'in' : r.move < 0 ? 'out' : ''}">${sum ? (r.move > 0 ? 'add ' : r.move < 0 ? 'reduce by ' : '') + fmt(Math.abs(r.move), cur) : '–'}</td></tr>`; }).join('')}</table>
+      ${sum && Math.round(sum) !== 100 ? `<p class="small warn">Your targets add up to ${sum}%, not 100%.</p>` : ''}${R.find(r => r.k === 'Not set') ? '<p class="small">Set each holding\'s type under Holdings for this to be complete.</p>' : ''}`;
+  }
+
+  // ---------- holdings
+  function holdingsTab() {
+    const { ids, curs } = scope(), H = Invest.holdings(D.tx.filter(t => ids.includes(t.acct)), D.prices).filter(h => h.qty > 0);
+    if (!H.length) return '<div class="card"><p>No holdings yet.</p></div>';
+    const syms = [...new Set(H.map(h => h.sym))];
+    return `<div class="card"><h3>Holdings</h3><div style="overflow-x:auto"><table><tr><th>Holding</th><th>Account</th><th class="n">Units</th><th class="n">Cost</th><th class="n">Price</th><th class="n">Value</th><th class="n">Gain</th></tr>
+      ${H.map(h => { const c = acct(h.acct).cur; return `<tr><td><b>${esc(h.sym)}</b><br><span class="small">${esc(h.name)}</span></td><td class="small">${esc(acct(h.acct).name)}</td><td class="n">${+h.qty.toFixed(4)}</td><td class="n">${fmt(h.cost, c)}</td>
+        <td class="n">${h.price != null ? fmt(h.price, c) + `<br><span class="small">${h.priceDate}</span>` : '<span class="warn small">no price</span>'}</td><td class="n">${fmt(h.value, c)}</td><td class="n ${h.unrealised >= 0 ? 'in' : 'out'}">${h.unrealised == null ? '–' : fmt(h.unrealised, c) + '<br><span class="small">' + pc(h.pct) + '</span>'}</td></tr>`; }).join('')}</table></div>
+      <p class="small">Cost uses the average-cost method. Prices come from your statements, or from you below. ${curs.length > 1 ? 'Amounts are in each account\'s own currency.' : ''}</p></div>
+      <div class="card"><h3>Update a price or a holding's details</h3><p class="small">Type today's price from your broker's app. Details power the "How your money is spread" chart.</p><div style="overflow-x:auto"><table><tr><th>Holding</th><th>Price</th><th>Type</th><th>Sector</th><th>Country</th><th>Region</th><th>Currency</th></tr>
+      ${syms.map(s => { const m = D.meta[s] || {}, p = D.prices[s] || {}; return `<tr><td><b>${esc(s)}</b></td><td><input type="number" step="0.0001" data-pr="${esc(s)}" value="${p.price ?? ''}" placeholder="price" style="width:100px"></td>
+        <td><select data-m="${esc(s)}|cls"><option value="">–</option>${CLS.map(c => `<option${m.cls === c ? ' selected' : ''}>${c}</option>`).join('')}</select></td>
+        ${['sector', 'country', 'region', 'cur'].map(f => `<td><input type="text" data-m="${esc(s)}|${f}" value="${esc(m[f] || '')}" style="width:${f === 'cur' ? 60 : 110}px"></td>`).join('')}</tr>`; }).join('')}</table></div></div>`;
+  }
+
+  // ---------- income (+ tax-free savings limits)
+  function incomeTab() {
+    const { ids, curs, cur } = scope(); if (curs.length > 1) return '<div class="card"><p>Pick one account above (different currencies).</p></div>';
+    const S = Invest.summary(D, ids, today()), I = Invest.income(S, today()), tf = D.accounts.filter(a => ids.includes(a.id) && a.type === 'tfsa').map(a => a.id);
+    let h = `<div class="card"><h3>Dividends and interest</h3>${I.years.length ? `<table><tr><th>Year</th><th class="n">Dividends</th><th class="n">Interest</th><th class="n">Total</th></tr>${I.years.map(y => `<tr><td>${y.y}</td><td class="n">${fmt(y.div, cur)}</td><td class="n">${fmt(y.int, cur)}</td><td class="n"><b>${fmt(y.div + y.int, cur)}</b></td></tr>`).join('')}</table>` : '<p class="small">No dividends or interest yet.</p>'}
+      <p>Last 12 months: <b>${fmt(I.last12, cur)}</b>${I.yieldPct != null ? ` (${pc(I.yieldPct)} of today's value)` : ''}. If the next 12 months pay the same, that is about <b>${fmt(I.last12 / 12, cur)} a month</b>. <span class="small">Dividends can go up, down or stop: this is a "same again" estimate, not a promise.</span></p>
+      ${Object.keys(I.bySym).length ? `<h4 style="margin:12px 0 6px">By holding (last 12 months)</h4>${bars(Object.entries(I.bySym).map(([k, v]) => ({ k, v, pct: I.last12 ? v / I.last12 : 0 })).sort((a, b) => b.v - a.v), cur)}` : ''}</div>`;
+    if (tf.length) { const T = Invest.tfsa(D.tx, tf, D.limits);
+      h += `<div class="card"><h3>Tax-free savings limits</h3><p class="small">Tax year 1 March to end February. Limits: <input type="number" id="tfy" value="${D.limits.year}" style="width:100px"> a year, <input type="number" id="tfl" value="${D.limits.life}" style="width:110px"> in a lifetime (check SARS for the current figures).</p>
+        <table><tr><th>Tax year ending Feb</th><th class="n">Put in</th><th class="n">Still allowed</th></tr>${T.years.map(y => `<tr><td>${y.y}</td><td class="n">${fmt(y.v, cur)}</td><td class="n ${y.over ? 'out' : 'in'}">${y.over ? 'Over by ' + fmt(y.over, cur) : fmt(y.left, cur)}</td></tr>`).join('')}</table>
+        <p>Lifetime so far: <b>${fmt(T.life, cur)}</b>, ${fmt(T.lifeLeft, cur)} left. ${T.years.some(y => y.over) ? '<span class="out">Going over the yearly limit is taxed at 40% of the excess.</span>' : ''}</p><p class="small">Counts deposits into accounts marked tax-free. Transfers between providers are not new contributions; mark those as "Other" if they show up as deposits.</p></div>`; }
+    return h;
+  }
+
+  // ---------- accounts, import, review, transactions, documents
+  function accountsTab() {
+    let h = `<div class="card"><h3>Your investment accounts</h3>${D.accounts.length ? `<table><tr><th>Name</th><th>Type</th><th>Currency</th><th class="n">Transactions</th><th></th></tr>${D.accounts.map(a => `<tr><td>${esc(a.name)}</td><td>${Invest.ACCT[a.type]}</td><td>${esc(a.cur)}</td><td class="n">${D.tx.filter(t => t.acct === a.id).length}</td><td class="n"><button class="ghost" data-delacct="${a.id}">Remove</button></td></tr>`).join('')}</table>` : '<p>Start by adding an account, for example "EasyEquities TFSA".</p>'}
+      <div class="row" style="margin-top:10px"><input type="text" id="anm" placeholder="Account name" style="flex:1;min-width:160px"><select id="aty">${Object.entries(Invest.ACCT).map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}</select><input type="text" id="acu" value="R" style="width:60px" aria-label="Currency"><button id="aadd">Add account</button></div></div>`;
+    if (!D.accounts.length) return h;
+    h += `<div class="card"><h3>Add a broker statement</h3><div class="row"><label class="small" for="iacct">Into account</label><select id="iacct">${D.accounts.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select></div>
+      <label class="drop" id="idrop" for="ifile" style="display:block;margin-top:10px"><b>Drop a statement here</b><br><span class="small">CSV, Excel, PDF or a photo · transactions and holdings are read and shown to you before anything is saved</span></label>
+      <input type="file" id="ifile" accept=".csv,.txt,.xls,.xlsx,.pdf,image/*" style="position:absolute;width:1px;height:1px;opacity:0"><p class="small" id="imsg"></p></div>`;
+    if (REVIEW) h += review();
+    h += `<div class="card"><h3>Add one by hand</h3><div class="row"><select id="macct">${D.accounts.map(a => `<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select><input type="date" id="mdate" value="${today()}"><select id="mtype">${Object.entries(Invest.TYPES).map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}</select>
+      <input type="text" id="msym" placeholder="Code e.g. STX40" style="width:120px"><input type="number" id="mqty" placeholder="Units" style="width:90px"><input type="number" id="mamt" placeholder="Amount" style="width:110px"><input type="number" id="mfee" placeholder="Fee" style="width:80px"><button id="madd">Add</button></div>
+      <p class="small">Statement value: type the holding's units and its total value on that date.</p></div>`;
+    const tx = D.tx.slice().sort((a, b) => b.date.localeCompare(a.date));
+    h += `<div class="card"><h3>Transactions (${tx.length})</h3>${tx.length ? `<div style="overflow-x:auto;max-height:420px"><table><tr><th>Date</th><th>Account</th><th>Type</th><th>Holding</th><th class="n">Units</th><th class="n">Amount</th><th class="n">Fee</th><th></th></tr>${tx.slice(0, 400).map(t => `<tr><td>${t.date}</td><td class="small">${esc((acct(t.acct) || {}).name || '?')}</td><td>${Invest.TYPES[t.type]}</td><td>${esc(t.sym || '')}</td><td class="n">${t.qty || ''}</td><td class="n">${fmt(t.amount, (acct(t.acct) || {}).cur)}</td><td class="n">${t.fee ? fmt(t.fee, (acct(t.acct) || {}).cur) : ''}</td><td><button class="ghost" data-deltx="${t.id}" aria-label="Delete">✕</button></td></tr>`).join('')}</table></div>` : '<p class="small">None yet.</p>'}</div>`;
+    if (D.docs.length) h += `<div class="card"><h3>Original statements</h3><table>${D.docs.map(d => `<tr><td>${esc(d.name)}</td><td class="small">${d.date} · ${esc((acct(d.acct) || {}).name || '')} · ${d.count} added</td><td class="n"><button class="ghost" data-doc="${d.id}">Download</button></td></tr>`).join('')}</table><p class="small">Kept in this browser only, so you can always check a number against the original.</p></div>`;
+    return h;
+  }
+  function review() {
+    const R = REVIEW.rows, ok = R.filter(r => r.sure && !r.dup).length;
+    return `<div class="card" id="revcard"><h3>Check before saving: ${esc(REVIEW.name)}</h3><p>${R.length} lines found. <b>${ok}</b> look right and are ticked. ${R.filter(r => !r.sure).length ? `<span class="warn">${R.filter(r => !r.sure).length} need you to check them</span> (shown first).` : ''} ${R.filter(r => r.dup).length ? `${R.filter(r => r.dup).length} are already saved and are left out.` : ''}</p>
+      <div style="overflow-x:auto;max-height:460px"><table><tr><th>Add</th><th>Date</th><th>Type</th><th>Holding</th><th class="n">Units</th><th class="n">Amount</th><th class="n">Fee</th><th>Note</th></tr>
+      ${R.map((r, i) => ({ r, i })).sort((a, b) => (a.r.sure - b.r.sure) || (a.r.dup - b.r.dup)).map(({ r, i }) => `<tr${r.dup ? ' style="opacity:.5"' : ''}><td><input type="checkbox" data-rv="${i}" ${r.sure && !r.dup ? 'checked' : ''}></td><td>${r.tx.date || '<span class="warn">?</span>'}</td>
+        <td><select data-rt="${i}"><option value="">?</option>${Object.entries(Invest.TYPES).map(([k, n]) => `<option value="${k}"${r.tx.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></td>
+        <td><input type="text" data-rs="${i}" value="${esc(r.tx.sym)}" style="width:100px"></td><td class="n"><input type="number" data-rq="${i}" value="${r.tx.qty || ''}" style="width:80px"></td><td class="n"><input type="number" data-ra="${i}" value="${r.tx.amount || ''}" style="width:100px"></td><td class="n">${r.tx.fee || ''}</td>
+        <td class="small ${r.sure ? '' : 'warn'}">${r.dup ? 'already saved' : esc(r.notes.join('; ')) || 'ok'}</td></tr>`).join('')}</table></div>
+      <div class="row" style="margin-top:10px"><button id="rvsave">Save ticked lines</button><button class="ghost" id="rvcancel">Cancel</button></div></div>`;
+  }
+
+  async function importFile(f) {
+    const a = $('iacct').value, cur = acct(a).cur, msg = $('imsg'), ext = (f.name.match(/\.(\w+)$/) || [])[1]?.toLowerCase() || '';
+    msg.textContent = 'Reading…';
+    try {
+      let res;
+      if (ext === 'pdf') res = Broker.fromLines(await pdfLines(f, p => msg.textContent = 'Reading ' + p), a, cur);
+      else if (/^(jpe?g|png|webp|heic)$/.test(ext) || /^image\//.test(f.type)) res = Broker.fromLines(await photoLines(f, p => msg.textContent = 'Reading ' + p), a, cur);
+      else if (/^xlsx?$/.test(ext)) res = Broker.fromCsv(await xlsxCsv(f), a, cur);
+      else res = Broker.fromCsv(Engine.decode(await f.arrayBuffer()), a, cur);
+      if (res.error || !res.rows.length) { msg.textContent = res.error || "No transactions found. If your broker has a CSV or Excel export, that reads best."; return; }
+      const id = uid(); keepDoc(id, f);
+      REVIEW = { name: f.name, id, acct: a, rows: Broker.dedupe(res.rows, D.tx) }; msg.textContent = ''; render(); $('revcard')?.scrollIntoView({ behavior: 'smooth' });
+    } catch (e) { msg.textContent = e.message === 'offline' ? 'Reading this file type needs internet the first time. Connect and try again, or use CSV.' : 'This file could not be read (' + e.message + ').'; }
+  }
+
+  function report() {
+    const { ids, cur } = scope(), S = Invest.summary(D, ids, today()), q = s => '"' + String(s).replace(/"/g, '""') + '"';
+    const rows = [['Investment report', today()], [], ['Total value', S.total], ['Invested (deposits - withdrawals)', S.invested], ['Gain', S.gain], ['Yearly return (money-weighted)', S.yearly == null ? '' : (S.yearly * 100).toFixed(2) + '%'],
+      ['Dividends', S.dividends], ['Interest', S.interest], ['Fees', S.fees], ['Cash', S.cash], [], ['Holding', 'Account', 'Units', 'Cost', 'Price', 'Price date', 'Value', 'Gain', 'Realised'],
+      ...S.open.map(h => [h.sym, acct(h.acct).name, h.qty, h.cost, h.price ?? '', h.priceDate ?? '', h.value ?? 'no price', h.unrealised ?? '', h.realised]), [], ['Date', 'Account', 'Type', 'Holding', 'Units', 'Amount', 'Fee'],
+      ...S.tx.map(t => [t.date, acct(t.acct).name, Invest.TYPES[t.type], t.sym, t.qty, t.amount, t.fee])];
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv' })); a.download = 'investment-report-' + today() + '.csv'; a.click();
+  }
+
+  function wire() {
+    const on = (sel, ev, fn) => document.querySelectorAll('#invbody ' + sel).forEach(e => e[ev] = () => fn(e));
+    on('[data-it]', 'onclick', b => { TAB = b.dataset.it; render(); });
+    if (TAB === 'sim' && $('simout')) { const cur = scope().cur; on('[data-sim]', 'oninput', i => { SIM[i.dataset.sim] = +i.value || 0; simCalc(cur); }); on('#simreal', 'onchange', () => simCalc(cur)); simCalc(cur); }
+    on('[data-goto]', 'onclick', b => { TAB = b.dataset.goto; render(); return false; });
+    on('[data-sp]', 'onclick', b => { SPREAD = b.dataset.sp; render(); });
+    on('#invacct', 'onchange', s => { VIEW = s.value; render(); });
+    on('#bench', 'onchange', i => { D.bench = +i.value || 0; save(); render(); });
+    on('[data-tg]', 'onchange', i => { if (i.value === '') delete D.target[i.dataset.tg]; else D.target[i.dataset.tg] = +i.value; save(); render(); });
+    on('[data-pr]', 'onchange', i => { const s = i.dataset.pr; if (i.value === '') delete D.prices[s]; else D.prices[s] = { price: +i.value, date: today(), src: 'you' }; save(); render(); });
+    on('[data-m]', 'onchange', i => { const [s, f] = i.dataset.m.split('|'); D.meta[s] = D.meta[s] || {}; D.meta[s][f] = i.value.trim(); save(); });
+    on('#tfy', 'onchange', i => { D.limits.year = +i.value; save(); render(); }); on('#tfl', 'onchange', i => { D.limits.life = +i.value; save(); render(); });
+    on('#aadd', 'onclick', () => { const n = $('anm').value.trim(); if (!n) return $('anm').focus(); D.accounts.push({ id: uid(), name: n, type: $('aty').value, cur: $('acu').value.trim() || 'R' }); save(); render(); });
+    on('[data-delacct]', 'onclick', b => { const a = acct(b.dataset.delacct), n = D.tx.filter(t => t.acct === a.id).length; if (!confirm(`Remove "${a.name}"${n ? ` and its ${n} transactions` : ''}? This cannot be undone.`)) return; D.accounts = D.accounts.filter(x => x !== a); D.tx = D.tx.filter(t => t.acct !== a.id); if (VIEW === a.id) VIEW = 'all'; save(); render(); });
+    on('[data-deltx]', 'onclick', b => { D.tx = D.tx.filter(t => t.id !== b.dataset.deltx); save(); render(); });
+    on('#madd', 'onclick', () => { const amt = +$('mamt').value, ty = $('mtype').value, qty = +$('mqty').value || 0, sym = $('msym').value.trim().toUpperCase();
+      if (!amt) return $('mamt').focus(); if ((ty === 'buy' || ty === 'sell' || ty === 'snap') && (!sym || !qty)) { alert('A buy, sell or statement value needs a code and units.'); return; }
+      D.tx.push({ id: uid(), acct: $('macct').value, date: $('mdate').value, type: ty, sym, name: sym, qty, price: qty ? r2(amt / qty) : 0, amount: Math.abs(amt), fee: Math.abs(+$('mfee').value || 0), src: 'hand' }); save(); render(); });
+    const fi = $('ifile'); if (fi) { fi.onchange = () => { if (fi.files[0]) importFile(fi.files[0]); fi.value = ''; };
+      const dz = $('idrop'); dz.ondragover = e => { e.preventDefault(); dz.classList.add('over'); }; dz.ondragleave = () => dz.classList.remove('over'); dz.ondrop = e => { e.preventDefault(); dz.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) importFile(f); }; }
+    if (REVIEW) {
+      const R = REVIEW.rows;
+      on('[data-rt]', 'onchange', s => { R[s.dataset.rt].tx.type = s.value; }); on('[data-rs]', 'onchange', s => { R[s.dataset.rs].tx.sym = s.value.trim().toUpperCase(); R[s.dataset.rs].tx.name = R[s.dataset.rs].tx.name || s.value; });
+      on('[data-rq]', 'onchange', s => { R[s.dataset.rq].tx.qty = +s.value || 0; }); on('[data-ra]', 'onchange', s => { R[s.dataset.ra].tx.amount = Math.abs(+s.value || 0); });
+      on('#rvcancel', 'onclick', () => { REVIEW = null; render(); });
+      on('#rvsave', 'onclick', () => { const pick = [...document.querySelectorAll('[data-rv]')].filter(c => c.checked).map(c => R[+c.dataset.rv]);
+        const bad = pick.filter(r => !r.tx.type || !r.tx.date || !r.tx.amount || ((r.tx.type === 'buy' || r.tx.type === 'sell') && (!r.tx.sym || !r.tx.qty)));
+        if (bad.length) { alert(`${bad.length} ticked line${bad.length > 1 ? 's are' : ' is'} missing a type, date, amount, holding or units. Fill ${bad.length > 1 ? 'them' : 'it'} in or untick.`); return; }
+        pick.forEach(r => D.tx.push({ ...r.tx, id: uid(), src: REVIEW.id })); D.docs.push({ id: REVIEW.id, name: REVIEW.name, date: today(), acct: REVIEW.acct, count: pick.length });
+        REVIEW = null; save(); render(); $('imsg') && ($('imsg').textContent = `${pick.length} transactions saved.`); });
+    }
+    on('[data-doc]', 'onclick', async b => { const f = await getDoc(b.dataset.doc); if (!f) return alert('The original is no longer in this browser.'); const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name || 'statement'; a.click(); });
+    on('#invcsv', 'onclick', report); on('#invprint', 'onclick', () => print());
+    on('#licgo', 'onclick', async () => { const ok = await Plans.enter($('lickey').value); if (ok) render(); else $('licmsg').textContent = "That key isn't valid. Check it was copied in full."; });
+  }
+  return { render, tab: t => { TAB = t; }, get TAB() { return TAB; }, _data: () => D, _load: load };
+})();
+
 if(typeof Engine==='undefined'){ document.body.innerHTML='<p style="font:18px sans-serif;padding:24px">This is the unfinished source file. Please open <b>SpendSight.html</b> instead.</p>'; throw new Error('source file opened'); }
 const money = (v,cur) => (v<0?'-':'')+cur+' '+Math.abs(v).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -1986,16 +2657,20 @@ function totals(t){
 }
 const viewCur=()=>VIEW==='all'?STATE.cur:FILES.find(f=>f.acct===VIEW).cur;
 let PANEL='pMonth';
-const PTITLE={pHelp:'Help',pMonth:'Dashboard',pYear:'Cash flow',pTx:'Transactions',pCmp:'Comparisons & insights',pPlan:'Savings & growth',pFiles:'Statements'};
-const PINTRO={pMonth:'Your money for the period you choose: what came in, what went out and what was left.',pYear:'Every month side by side, so you can spot good and tight months.',pTx:'Every payment in your statements. Search, filter or fix a category.',pCmp:'Pick a question to get an answer from your own data, or compare two months or two whole years.',pPlan:'See where you could save each month, and what that could grow to over time.',pFiles:'Add, rename or remove your bank statements.',pHelp:'How SpendSight works, in plain words.'};
+const PTITLE={pInv:'Investments',pHelp:'Help',pMonth:'Dashboard',pYear:'Cash flow',pTx:'Transactions',pCmp:'Comparisons & insights',pPlan:'Savings & growth',pFiles:'Statements'};
+const PINTRO={pInv:'Your investments in one place. Only figures from your statements or from you are used.',pMonth:'Your money for the period you choose: what came in, what went out and what was left.',pYear:'Every month side by side, so you can spot good and tight months.',pTx:'Every payment in your statements. Search, filter or fix a category.',pCmp:'Pick a question to get an answer from your own data, or compare two months or two whole years.',pPlan:'See where you could save each month, and what that could grow to over time.',pFiles:'Add, rename or remove your bank statements.',pHelp:'How SpendSight works, in plain words.'};
 function showPanel(p){
-  const loaded=FILES.length>0; if(!loaded&&p!=='pHelp'&&p!=='pFiles'){ PANEL='pMonth'; p='pFiles'; } else PANEL=(!loaded&&p==='pFiles')?'pMonth':p; document.getElementById('ptitle').textContent=loaded||p==='pHelp'?PTITLE[p]:'Welcome';
-  document.getElementById('pintro').textContent=loaded||p==='pHelp'?PINTRO[p]:'';
+  const loaded=FILES.length>0, free=p==='pHelp'||p==='pInv'; if(!loaded&&!free&&p!=='pFiles'){ PANEL='pMonth'; p='pFiles'; } else PANEL=(!loaded&&p==='pFiles')?'pMonth':p; document.getElementById('ptitle').textContent=loaded||free?PTITLE[p]:'Welcome';
+  document.getElementById('pintro').textContent=loaded||free?PINTRO[p]:'';
+  { const NEED={pPlan:'budgets'}, lk=document.getElementById('lockcard'), locked=NEED[p]&&!Plans.can(NEED[p]);   // plan check for paid pages
+    lk.classList.toggle('hidden',!locked); if(locked){ const n=Plans.PLANS[Plans.needed(NEED[p])]; lk.innerHTML=`<h3>${Plans.FEATURE_NAME[NEED[p]]}</h3><p>Part of the <b>${n.name}</b> plan (${n.price}).</p><div class="row"><input type="text" id="lk2" placeholder="Paste your licence key" style="flex:1;min-width:220px"><button id="lk2go">Unlock</button></div><p class="small" id="lk2msg"></p>`;
+      document.getElementById('lk2go').onclick=async()=>{ if(await Plans.enter(document.getElementById('lk2').value)) showPanel(p); else document.getElementById('lk2msg').textContent="That key isn't valid."; }; document.getElementById(p).classList.add('locked'); } else if(NEED[p]) document.getElementById(p).classList.remove('locked'); }
+  document.getElementById('pInv').classList.toggle('hidden',p!=='pInv'); if(p==='pInv') InvestUI.render(); const ps=document.getElementById('psub'); ps.dataset.keep=ps.dataset.keep||ps.textContent; ps.classList.toggle('hidden',p==='pInv');
   document.getElementById('pHelp').classList.toggle('hidden',p!=='pHelp');
-  document.getElementById('out').classList.toggle('hidden',!loaded||p==='pHelp');
-  document.getElementById('upcard').classList.toggle('hidden',p==='pHelp'||(loaded&&p!=='pFiles'));
+  document.getElementById('out').classList.toggle('hidden',!loaded||free);
+  document.getElementById('choose').classList.toggle('hidden',loaded||p!=='pFiles'); document.getElementById('upcard').classList.toggle('hidden',free||(loaded&&p!=='pFiles'));
   ['pMonth','pYear','pTx','pCmp','pPlan','pFiles'].forEach(x=>document.getElementById(x).classList.toggle('hidden', x!==p));
-  document.querySelectorAll('#mainnav button').forEach(b=>b.classList.toggle('on', b.dataset.p===p||(!loaded&&p==='pFiles'&&b.dataset.p==='pMonth'))); scrollTo(0,0); }
+  document.querySelectorAll('#mainnav button').forEach(b=>b.classList.toggle('on', (b.dataset.p===p&&(!b.dataset.it||b.dataset.it===InvestUI.TAB))||(!loaded&&p==='pFiles'&&b.dataset.p==='pMonth'))); scrollTo(0,0); }
 function renderYear(vt, cur){
   const months=[...new Set(vt.map(t=>t.month))].sort(), rows=months.map(m=>({m, ...totals(vt.filter(x=>x.month===m))}));
   const tot=rows.reduce((a,r)=>({moneyIn:a.moneyIn+r.moneyIn,out:a.out+r.out,fees:a.fees+r.fees,moved:a.moved+r.moved,net:a.net+r.net}),{moneyIn:0,out:0,fees:0,moved:0,net:0});
@@ -2204,7 +2879,7 @@ window.addEventListener('dragleave',e=>{ if(!e.relatedTarget) drop.classList.rem
 window.addEventListener('drop',e=>{ e.preventDefault(); drop.classList.remove('over'); const fs=fileFrom(e); if(!fs) return readFile(null); fs.forEach(readFile); });
 document.getElementById('sample').onclick=()=>enqueue(SAMPLE,'Sample statement');
 document.getElementById('addmore').onclick=()=>document.getElementById('drop').click();
-document.querySelectorAll('#mainnav button').forEach(b=>b.onclick=()=>showPanel(b.dataset.p));
+document.querySelectorAll('#mainnav button').forEach(b=>b.onclick=()=>{ if(b.dataset.it) InvestUI.tab(b.dataset.it); showPanel(b.dataset.p); });
 document.getElementById('toplan').onclick=e=>{ e.preventDefault(); CALC.monthly=Math.round(STATE.savingsTotal||0); document.getElementById('calcin').innerHTML=''; renderPlan(STATE.tx.filter(t=>VIEW==='all'||t.acct===VIEW), viewCur()); document.getElementById('calcin').scrollIntoView({behavior:'smooth'}); };
 const reTx=()=>{ if(STATE) renderTx(STATE.tx.filter(t=>VIEW==='all'||t.acct===VIEW), viewCur()); };
 ['fq','fm','fc','fd','fs'].forEach(id=>document.getElementById(id)[id==='fq'?'oninput':'onchange']=()=>{ TXLIMIT=200; reTx(); });
@@ -2219,6 +2894,9 @@ if(Online.mode()==='ask') Online.setMode('auto');   // the old "ask me first" ch
 const om=document.getElementById('omode'); om.value=Online.mode();
 const ominfo=()=>{ document.getElementById('omodeinfo').textContent={off:'Everything stays on your computer. Nothing is sent anywhere. If a transaction isn\'t recognised, you\'re asked to choose its category.',auto:'For unrecognised shops, only the shop name is looked up online. Amounts, dates and account details never leave your computer. If it\'s still unclear, you\'re asked.'}[om.value]; };
 om.onchange=()=>{ Online.setMode(om.value); ominfo(); if(STATE){ const keep=document.getElementById('month').value; combine(); document.getElementById('month').value=keep; month(keep);} }; ominfo();
+Plans.load().then(()=>{ if(PANEL==='pInv') InvestUI.render(); });
+document.getElementById('goSpend').onclick=()=>document.getElementById('drop').scrollIntoView({behavior:'smooth',block:'center'});
+document.getElementById('goInvest').onclick=()=>{ InvestUI.tab('acc'); showPanel('pInv'); };
 </script>
 </body>
 </html>
