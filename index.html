@@ -86,6 +86,7 @@ input[type=number],input[type=text],input[type=search],select{font:inherit;font-
 .chip{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-size:.88rem;cursor:pointer;font-weight:500}
 .chip:hover{border-color:var(--maroon)} .chip.sug{border-color:var(--green);background:var(--okbg);font-weight:700}
 .chip select{color:var(--ink)}
+.bublist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 16px;margin-top:10px;font-size:.88rem}.bublist>div{display:grid;grid-template-columns:22px minmax(0,1fr) auto 64px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}.bublist .bn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--line);font-size:.72rem;font-weight:700}.bublist .bk{overflow-wrap:anywhere}
 .ask{border:1px solid var(--line);border-radius:8px;padding:14px;margin:12px 0;background:var(--card2)}
 .ask .q{font-weight:700}
 .online{background:color-mix(in srgb,#3b82f6 12%,transparent);border:1px solid color-mix(in srgb,#3b82f6 35%,transparent);color:var(--ink);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:.92rem}
@@ -173,18 +174,18 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
   <div class="card" id="upcard">
     <ol class="steps" id="steps"><li><b>Download</b><span>a CSV statement from your bank's website or app</span></li><li><b>Add it here</b><span>drag it in or tap the box below</span></li><li><b>See your money</b><span>totals, charts and tips appear right away</span></li></ol>
     <label id="drop" for="file">
-      <b>Drag your bank statements (CSV) here</b><br>
+      <b>Drag your bank statements here</b><br><span class="small">CSV works best · PDF, Excel, OFX/QIF and photos also work</span><br>
       <span class="small">or click to choose files · several at once is fine</span>
     </label>
     <!-- visually hidden but still "there", so every browser (incl. Safari) opens the picker; any file type can be chosen and is checked by the app -->
-    <input type="file" id="file" multiple style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+    <input type="file" id="file" multiple accept=".csv,.txt,.pdf,.ofx,.qfx,.qif,.xls,.xlsx,image/*,text/csv,application/pdf" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
     <details class="guide"><summary>How do I get a CSV statement from my bank?</summary>
       <ol><li>Log in to your bank's <b>internet banking</b> (a computer works best; some banking apps can do it too).</li>
       <li>Open the account and go to <b>Transactions</b>, <b>Transaction history</b> or <b>Statements</b>.</li>
       <li>Choose the dates you want, for example the last 3 to 12 months.</li>
       <li>Choose <b>Download</b> or <b>Export</b> and pick <b>CSV</b>. If there is no CSV, choose Excel and save it as CSV.</li>
       <li>Add the file here. Several months or accounts at once is fine.</li></ol>
-      <p class="small">PDF statements cannot be read. Any bank and currency works: the app recognises the columns itself and checks every amount against the bank's balance.</p></details>
+      <p class="small">No CSV? A PDF statement, an Excel file, an OFX/QIF export or a clear photo of each page also works: the app turns it into a table for you. Any bank and currency works: the app recognises the columns itself and checks every amount against the bank's balance.</p></details>
     <p class="small">Your files stay on your computer. Nothing is uploaded, stored or sent anywhere. This page even works with your Wi-Fi off.</p>
     <label class="keep"><input type="checkbox" id="keepon"> <span><b>Remember my statements on this device</b><br><span class="small">So you don't have to add them again next time. They are kept only in this browser, never online. Untick to delete them.</span></span></label>
     <div id="acctlist"></div>
@@ -209,7 +210,7 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
       <tr><td><b>Dashboard</b></td><td>One month or a whole year at a glance: what came in, what went out, what was left over.</td></tr>
       <tr><td><b>Cash flow</b></td><td>Every month side by side, with totals and averages. Download it or print it.</td></tr>
       <tr><td><b>Transactions</b></td><td>Every payment. Search, filter and correct categories. Also your repeat payments and top places.</td></tr>
-      <tr><td><b>Comparisons &amp; insights</b></td><td>Pick a question and get an answer from your own data, and compare any two months.</td></tr>
+      <tr><td><b>Comparisons &amp; insights</b></td><td>Pick a question and get an answer from your own data, and compare any two months or two whole years.</td></tr>
       <tr><td><b>Savings &amp; growth</b></td><td>Where you could save, and what that could grow to if invested.</td></tr>
       <tr><td><b>Statements</b></td><td>Add, rename or remove statements and accounts.</td></tr></table></div>
     <div class="card"><h3>Common questions</h3>
@@ -251,8 +252,8 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
     </div>
     <div id="pCmp" class="hidden"><div class="card" id="askcard"><h3>Ask your data</h3><div class="row askrow"><select id="askq" aria-label="Question" style="flex:2;min-width:220px"></select><select id="askcat" aria-label="Category" class="hidden"></select><select id="askplace" aria-label="Place" class="hidden" style="max-width:220px"></select><select id="askper" aria-label="Period" class="hidden"></select><button id="askgo">Show answer</button></div>
       <div id="askans" style="margin-top:12px"></div><p class="small">Answered from your own statements on this device. Nothing is sent anywhere.</p></div>
-    <div class="card"><h3>Compare months</h3>
-      <div class="row"><label for="ca"><b>This:</b></label><select id="ca"></select><label for="cb"><b>with:</b></label><select id="cb"></select></div>
+    <div class="card"><h3>Compare months or years</h3>
+      <div class="row"><label for="ca"><b>This:</b></label><select id="ca"></select><label for="cb"><b>with:</b></label><select id="cb"></select><button class="ghost hidden" id="cmpyears"></button></div><p class="small" id="cmpnote"></p>
       <div id="cmpsum" style="margin-top:12px;overflow-x:auto"></div><div id="cmprows" style="overflow-x:auto"></div></div>
       <div class="card"><h3>Needs, wants or savings?</h3><p class="small">How each category counts in the needs / wants split. Change any of them; saved on this device.</p><div id="types"></div></div></div>
     <div id="pPlan" class="hidden">
@@ -625,7 +626,7 @@ if (typeof module !== 'undefined') module.exports = Engine;
 // well-known businesses, then word clues in several languages, then simple patterns.
 // If it can't tell, it says "Uncategorised" instead of guessing.
 const Categorize = (() => {
-  const CATS = ['Groceries', 'Eating Out', 'Transport', 'Shopping', 'Health', 'Bills', 'Subscriptions', 'Housing', 'Insurance',
+  const CATS = ['Groceries', 'Eating Out', 'Transport', 'Shopping', 'Health & fitness', 'Bills', 'Subscriptions', 'Housing', 'Insurance',
     'Education', 'Entertainment', 'Fees', 'Cash', 'Transfers', 'Income', 'Savings', 'Uncategorised'];
 
   // ---- well-known businesses (brand -> category). Lower-case, matched as whole words.
@@ -649,7 +650,7 @@ const Categorize = (() => {
       'totalsports', 'clicks', 'incredible connection', 'hifi corp', 'game', 'builders', 'leroy merlin', 'cashbuild', 'ikea', 'home depot', 'lowes', 'target',
       'best buy', 'argos', 'boots', 'cna', 'exclusive books', 'typo', 'pnа clothing', 'dischem online', 'apple store', 'samsung store', 'istore', 'mediamarkt',
       'fnac', 'el corte ingles', 'bol.com', 'coolblue', 'hema', 'action'],
-    Health: ['dis-chem', 'dischem', 'medirite', 'pharmacy', 'netcare', 'mediclinic', 'life healthcare', 'lancet', 'pathcare', 'ampath', 'spec-savers', 'specsavers',
+    'Health & fitness': ['dis-chem', 'dischem', 'medirite', 'pharmacy', 'netcare', 'mediclinic', 'life healthcare', 'lancet', 'pathcare', 'ampath', 'spec-savers', 'specsavers',
       'virgin active', 'planet fitness', 'planet fitness sa', 'zone fitness', 'anytime fitness', 'puregym', 'basic-fit', 'mcfit', 'cvs', 'walgreens', 'rite aid'],
     Bills: ['eskom', 'city of cape town', 'city of johannesburg', 'city power', 'joburg water', 'ethekwini', 'tshwane', 'mossel bay municipality', 'municipality',
       'vodacom', 'mtn', 'telkom', 'cell c', 'rain', 'afrihost', 'webafrica', 'vox telecom', 'openserve', 'vumatel', 'verizon', 'at&t', 't-mobile', 'comcast',
@@ -685,7 +686,7 @@ const Categorize = (() => {
     Shopping: ['clothing', 'fashion', 'boutique', 'shoes', 'footwear', 'hardware', 'ferreteria', 'quincaillerie', 'baumarkt', 'electronics', 'furniture',
       'meubles', 'muebles', 'möbel', 'bookshop', 'book store', 'bookstore', 'librairie', 'libreria', 'toy', 'toys', 'jewel', 'florist', 'gift', 'online store',
       'webshop', 'outlet', 'mall', 'store', 'stores', 'shop', 'winkel', 'geschäft', 'boutique', 'tienda de ropa', 'cellphone shop', 'pet shop', 'stationery'],
-    Health: ['pharmacy', 'pharmacie', 'farmacia', 'apotheek', 'apotheke', 'apteek', 'chemist', 'drugstore', 'clinic', 'kliniek', 'klinik', 'clínica', 'hospital',
+    'Health & fitness': ['pharmacy', 'pharmacie', 'farmacia', 'apotheek', 'apotheke', 'apteek', 'chemist', 'drugstore', 'clinic', 'kliniek', 'klinik', 'clínica', 'hospital',
       'hospitaal', 'krankenhaus', 'doctor', 'dokter', 'dr', 'dr.', 'dental', 'dentist', 'tandarts', 'zahnarzt', 'physio', 'optometrist', 'optician', 'medical',
       'medies', 'gym', 'fitness', 'sportschool', 'yoga', 'pilates', 'crossfit', 'vet', 'veterinary', 'dierenarts', 'tierarzt'],
     Bills: ['electricity', 'elektrisiteit', 'water & lights', 'water and lights', 'municipal', 'munisipaliteit', 'rates', 'utility', 'utilities', 'stadtwerke',
@@ -734,13 +735,13 @@ const Categorize = (() => {
   const squash = s => String(s).toLowerCase().replace(/[^a-z0-9à-ÿ]/g, '');
   // build fast lookup lists, longest names first so "uber eats" wins over "uber"
   const brandList = Object.entries(BRANDS).flatMap(([c, ws]) => ws.map(w => [w, c])).sort((a, b) => b[0].length - a[0].length);
-  const wordOrder = ['Income', 'Savings', 'Cash', 'Fees', 'Transfers', 'Insurance', 'Housing', 'Subscriptions', 'Education', 'Health', 'Eating Out', 'Groceries',
+  const wordOrder = ['Income', 'Savings', 'Cash', 'Fees', 'Transfers', 'Insurance', 'Housing', 'Subscriptions', 'Education', 'Health & fitness', 'Eating Out', 'Groceries',
     'Transport', 'Bills', 'Entertainment', 'Shopping'];
 
   // map a bank's own category names onto ours
   const BANKCAT = [[/rent|housing|bond|home loan|mortgage|levies/i, 'Housing'], [/insurance/i, 'Insurance'], [/subscription/i, 'Subscriptions'], [/fee|charge/i, 'Fees'], [/saving|invest/i, 'Savings'], [/grocer|food$|groceries|supermarket/i, 'Groceries'], [/restaurant|takeaway|eating|dining|fast food|coffee/i, 'Eating Out'],
     [/transport|fuel|travel|car|vehicle/i, 'Transport'], [/shopping|clothing|personal|household|home|electronics/i, 'Shopping'],
-    [/medical|health|fitness|pharmacy/i, 'Health'], [/communication|utilities|bills|cell|internet|electric/i, 'Bills'],
+    [/medical|health|fitness|pharmacy|gym|sport/i, 'Health & fitness'], [/communication|utilities|bills|cell|internet|electric/i, 'Bills'],
     [/entertainment|leisure|recreation/i, 'Entertainment'], [/education|school/i, 'Education'], [/insurance/i, 'Insurance'],
     [/fee|charge/i, 'Fees'], [/cash withdrawal|^cash$/i, 'Cash'], [/transfer/i, 'Transfers'], [/saving|invest/i, 'Savings'],
     [/income|salary|interest|payment received|deposit|allowance|refund/i, 'Income'], [/rent|housing|bond|home loan/i, 'Housing'], [/subscription/i, 'Subscriptions']];
@@ -856,7 +857,7 @@ const Online = (() => {
     [/supermarket|grocery|convenience|butcher|bakery|greengrocer|deli|alcohol|beverages|farm|marketplace|general/, 'Groceries', 'Food retail'],
     [/restaurant|cafe|fast_food|bar|pub|biergarten|food_court|ice_cream|coffee/, 'Eating Out', 'Food service'],
     [/fuel|car_wash|car_repair|tyres|car_parts|parking|car_rental|taxi|bus_station|charging_station|motorcycle/, 'Transport', 'Motor & transport'],
-    [/pharmacy|chemist|doctors|dentist|clinic|hospital|optician|veterinary|fitness|sports_centre|gym|physiotherapist|healthcare/, 'Health', 'Health & fitness'],
+    [/pharmacy|chemist|doctors|dentist|clinic|hospital|optician|veterinary|fitness|sports_centre|gym|physiotherapist|healthcare/, 'Health & fitness', 'Health & fitness'],
     [/school|kindergarten|college|university|childcare|language_school|driving_school/, 'Education', 'Education'],
     [/cinema|theatre|nightclub|casino|bowling|amusement|zoo|aquarium|museum|escape_game|trampoline|gambling|lottery/, 'Entertainment', 'Leisure'],
     [/estate_agent|property|letting/, 'Housing', 'Property'],
@@ -964,7 +965,7 @@ if (typeof module !== 'undefined') module.exports = Online;
 const Savings = (() => {
   // spending that is usually adjustable, with a neutral starting "cut back by" share the user can change
   const TRIM = { 'Eating Out': .3, 'Entertainment': .3, 'Shopping': .2 };
-  const REPEAT_CATS = ['Subscriptions', 'Entertainment', 'Health', 'Shopping', 'Eating Out', 'Bills', 'Uncategorised'];
+  const REPEAT_CATS = ['Subscriptions', 'Entertainment', 'Health & fitness', 'Shopping', 'Eating Out', 'Bills', 'Uncategorised'];
 
   function analyse(tx) {
     const months = [...new Set(tx.map(t => t.month))].length || 1;
@@ -1076,16 +1077,31 @@ const Charts = (() => {
       }
     });
     let out = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Spending by category compared with a usual month">`;
+    let n = 0; for (const p of placed) p.n = ++n;
     for (const p of placed) {
       const ch = p.avg ? (p.v - p.avg) / p.avg : 0;
       const col = Math.abs(ch) < .1 ? '#9aa3b5' : ch > 0 ? `rgba(192,57,43,${Math.min(.9, .35 + ch)})` : `rgba(46,139,87,${Math.min(.9, .35 - ch)})`;
       const tag = !p.avg ? 'new' : Math.abs(ch) < .1 ? 'as usual' : (ch > 0 ? '▲ ' : '▼ ') + Math.round(Math.abs(ch) * 100) + '%';
       out += `<g><title>${esc(p.k)}: ${short(p.v, cur)} (usual month ${short(p.avg || 0, cur)})</title><circle cx="${p.x}" cy="${p.y}" r="${p.r}" fill="${col}" stroke="#fff" stroke-width="2"/>`;
-      if (p.r > 26) out += `<text x="${p.x}" y="${p.y - 4}" text-anchor="middle" font-size="${Math.min(14, p.r / 3.2)}" font-weight="700" fill="#1e2846">${esc(p.k)}</text><text x="${p.x}" y="${p.y + 12}" text-anchor="middle" font-size="11" fill="#1e2846">${short(p.v, cur)} · ${tag}</text>`;
-      else out += `<text x="${p.x}" y="${p.y + 4}" text-anchor="middle" font-size="10" fill="#1e2846">${esc(p.k.slice(0, 8))}</text>`;
+      const lines = wrap2(p.k), longest = Math.max(...lines.map(l => l.length), 6);
+      const fs = Math.min(17, (1.7 * p.r) / (0.6 * longest), (1.5 * p.r) / lines.length);
+      if (fs >= 10) {                                 // fits inside: the name (1-2 lines); amounts are in the list below
+        let y = p.y - (lines.length * fs) / 2 + fs * .8;
+        lines.forEach(l => { out += `<text x="${p.x}" y="${y.toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="#1e2846">${esc(l)}</text>`; y += fs; });
+      } else out += `<text x="${p.x}" y="${p.y + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#1e2846">${p.n}</text>`;   // too small: a number, explained in the list below
       out += '</g>';
     }
-    return out + '</svg>';
+    out += '</svg>';
+    // a readable list under the chart: every bubble, biggest first (numbers match the small bubbles)
+    out += '<div class="bublist">' + placed.map(p => { const ch = p.avg ? (p.v - p.avg) / p.avg : 0, cls = !p.avg || Math.abs(ch) < .1 ? '' : ch > 0 ? 'out' : 'in';
+      return `<div><span class="bn">${p.n}</span><span class="bk">${esc(p.k)}</span><span class="n">${short(p.v, cur)}</span><span class="n ${cls}">${!p.avg ? 'new' : Math.abs(ch) < .1 ? 'as usual' : (ch > 0 ? '▲ ' : '▼ ') + Math.round(Math.abs(ch) * 100) + '%'}</span></div>`; }).join('') + '</div>';
+    return out;
+  }
+  function wrap2(k) {               // split a name over at most two balanced lines
+    const w = k.split(' '); if (w.length < 2 || k.length < 11) return [k];
+    let best = [k], score = 1e9;
+    for (let i = 1; i < w.length; i++) { const a = w.slice(0, i).join(' '), b = w.slice(i).join(' '), m = Math.max(a.length, b.length); if (m < score) { score = m; best = [a, b]; } }
+    return best;
   }
   return { flow, calendar, bubbles, colorOf };
 })();
@@ -1200,7 +1216,7 @@ if (typeof module !== 'undefined') module.exports = Insights;
 // Modelling and comparison maths. Pure functions, own data only, nothing leaves the device.
 const Model = (() => {
   // ---- needs, wants and savings
-  const DEFAULT_TYPE = { Groceries: 'need', Transport: 'need', Bills: 'need', Housing: 'need', Insurance: 'need', Health: 'need', Education: 'need', Fees: 'need',
+  const DEFAULT_TYPE = { Groceries: 'need', Transport: 'need', Bills: 'need', Housing: 'need', Insurance: 'need', 'Health & fitness': 'need', Education: 'need', Fees: 'need',
     'Eating Out': 'want', Entertainment: 'want', Shopping: 'want', Subscriptions: 'want', Cash: 'want', Savings: 'save' };
   const SKIP = ['Transfers', 'Own accounts', 'Income'];
   // type of a category: the user's choice first, then the default; unknown spending counts as "other"
@@ -1228,14 +1244,15 @@ const Model = (() => {
   function byCategory(t) { const o = {}; t.filter(x => x.amt < 0 && !x.own && !SKIP.includes(x.cat) && x.cat !== 'Savings').forEach(x => o[x.cat] = (o[x.cat] || 0) - x.amt); return o; }
 
   // compare A with B (each a list of transactions, or an average built from several months)
-  function compare(A, B, monthsB, user) {
-    const ca = byCategory(A), cb = byCategory(B), d = monthsB || 1;
-    Object.keys(cb).forEach(k => cb[k] /= d);
+  function compare(A, B, monthsB, user, monthsA) {      // both sides are turned into an average month when they span several months
+    const ca = byCategory(A), cb = byCategory(B), d = monthsB || 1, e = monthsA || 1;
+    Object.keys(cb).forEach(k => cb[k] /= d); Object.keys(ca).forEach(k => ca[k] /= e);
     const cats = [...new Set([...Object.keys(ca), ...Object.keys(cb)])];
     const rows = cats.map(c => ({ cat: c, type: typeOf(c, user), a: ca[c] || 0, b: cb[c] || 0 })).map(r => ({ ...r, diff: r.a - r.b, pct: r.b ? (r.a / r.b - 1) : null }))
       .sort((x, y) => Math.abs(y.diff) - Math.abs(x.diff));
     const sa = split(A, user), sb = split(B, user);
     if (d > 1) for (const k of ['need', 'want', 'save', 'other', 'income']) sb[k] /= d;
+    if (e > 1) for (const k of ['need', 'want', 'save', 'other', 'income']) sa[k] /= e;
     return { rows, sa, sb };
   }
 
@@ -1307,6 +1324,94 @@ const Model = (() => {
 })();
 if (typeof module !== 'undefined') module.exports = Model;
 
+// Importers: turn other statement formats into a plain CSV the Engine already understands.
+//   OFX/QFX and QIF (bank "Money / Quicken" exports): read exactly, offline.
+//   PDF and photos: the text is read on this device (pdf.js / Tesseract, fetched once from a CDN), then
+//   statement lines are found by their shape: a date at the start, money amounts at the end.
+const Importers = (() => {
+  const q = s => '"' + String(s).replace(/"/g, '""').trim() + '"';
+  const csv = rows => 'Date,Description,Amount' + (rows.some(r => r.bal != null) ? ',Balance' : '') + '\n' +
+    rows.map(r => [r.date, q(r.desc), r.amt.toFixed(2)].concat(rows.some(x => x.bal != null) ? [r.bal == null ? '' : r.bal.toFixed(2)] : []).join(',')).join('\n');
+  const ymd = s => s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8);
+
+  function ofx(text) {
+    const rows = [];
+    for (const b of text.split(/<STMTTRN>/i).slice(1)) {
+      const g = t => { const m = b.match(new RegExp('<' + t + '>([^<\\r\\n]*)', 'i')); return m ? m[1].trim() : ''; };
+      const d = g('DTPOSTED'), a = parseFloat(g('TRNAMT').replace(',', '.'));
+      if (!/^\d{8}/.test(d) || isNaN(a)) continue;
+      rows.push({ date: ymd(d), desc: [g('NAME'), g('MEMO')].filter((x, i, A) => x && A.indexOf(x) === i).join(' - ') || g('TRNTYPE'), amt: a });
+    }
+    return rows.length ? csv(rows) : null;
+  }
+
+  function qif(text) {
+    const rows = []; let r = {};
+    for (const raw of text.split(/\r?\n/)) {
+      const c = raw[0], v = raw.slice(1).trim();
+      if (c === '^') { if (r.date && r.amt != null) rows.push({ date: r.date, desc: [r.p, r.m].filter(Boolean).join(' - '), amt: r.amt }); r = {}; }
+      else if (c === 'D') r.date = qdate(v);
+      else if (c === 'T' || c === 'U') r.amt = parseFloat(v.replace(/,/g, ''));
+      else if (c === 'P') r.p = v; else if (c === 'M') r.m = v;
+    }
+    return rows.length ? csv(rows) : null;
+  }
+  function qdate(v) {          // 12/31/2025, 31/12/2025, 12/31'25, 2025-12-31
+    let m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+    m = v.replace(/'/g, '/').match(/^(\d{1,2})\/\s*(\d{1,2})\/\s*(\d{2,4})/); if (!m) return null;
+    let [, a, b, y] = m; y = y.length === 2 ? '20' + y : y; if (+a > 12) [a, b] = [b, a];   // QIF is month-first unless that's impossible
+    return `${y}-${a.padStart(2, '0')}-${b.padStart(2, '0')}`;
+  }
+
+  // ---- text lines (from a PDF or a photo) -> transactions
+  const MON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12, mrt: 3, mei: 5, okt: 10, des: 12 };
+  const DATE = new RegExp('^\\s*(\\d{4}[-/.]\\d{1,2}[-/.]\\d{1,2}|\\d{1,2}[-/.]\\d{1,2}[-/.]\\d{2,4}|\\d{1,2}\\s+(?:' + Object.keys(MON).join('|') + ')[a-z]*\\.?(?:\\s+\\d{4})?)\\b', 'i');
+  const AMT = /(?:^|\s)(-?\s?(?:[A-Z]{1,3}\$?|\$|£|€)?\s?-?(?:\d{1,3}(?:[ ,.\u00a0]\d{3})+|\d+)[.,]\d{2}(?:\s?(?:CR|DR|Cr|Dr|-))?)(?=\s|$)/g;
+  function toNum(s) {
+    const t = s.replace(/[^\d.,]/g, ''); if (t.length < 4) return null;
+    const v = parseFloat(t.slice(0, -3).replace(/[.,]/g, '') + '.' + t.slice(-2)); if (isNaN(v)) return null;
+    return { v: /-|DR|Dr/.test(s) ? -v : v, signed: /-|DR|Dr|CR|Cr/.test(s) };
+  }
+  function lineDate(s, year) {
+    let m = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/); if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+    m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/); if (m) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; let [d, mo] = [m[1], m[2]]; if (+mo > 12) [d, mo] = [mo, d]; return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`; }
+    m = s.match(/^(\d{1,2})\s+([a-z]+)\.?(?:\s+(\d{4}))?$/i); if (m) { const mo = MON[m[2].toLowerCase().slice(0, 4)] || MON[m[2].toLowerCase().slice(0, 3)]; if (!mo) return null; return `${m[3] || year}-${String(mo).padStart(2, '0')}-${m[1].padStart(2, '0')}`; }
+    return null;
+  }
+  function fromLines(lines) {
+    const all = lines.join('\n'), ym = all.match(/\b(20\d{2})\b/), year = ym ? ym[1] : String(new Date().getFullYear());
+    const rows = [];
+    for (const line of lines) {
+      const dm = line.match(DATE); if (!dm) continue;
+      const date = lineDate(dm[1].trim(), year); if (!date) continue;
+      const rest = line.slice(dm[0].length), nums = []; let m; AMT.lastIndex = 0;
+      while ((m = AMT.exec(rest))) nums.push({ s: m[1], at: m.index });
+      if (!nums.length) continue;
+      const desc = rest.slice(0, nums[0].at).replace(/\s{2,}/g, ' ').replace(DATE, '').trim();
+      const vals = nums.map(n => toNum(n.s)).filter(Boolean); if (!vals.length || !desc) continue;
+      const bal = vals.length >= 2 ? vals[vals.length - 1] : null, amt = vals.length >= 2 ? vals[vals.length - 2] : vals[0];
+      rows.push({ date, desc, amt: amt.v, signed: amt.signed, bal: bal ? bal.v : null });
+    }
+    // unsigned amounts: take the direction from the running balance when there is one
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i]; if (r.signed || r.bal == null) continue;
+      const prev = i > 0 ? rows[i - 1].bal : null, nx = rows[i + 1];
+      if (prev != null) { if (Math.abs(prev - Math.abs(r.amt) - r.bal) < .015) r.amt = -Math.abs(r.amt); else if (Math.abs(prev + Math.abs(r.amt) - r.bal) < .015) r.amt = Math.abs(r.amt); }
+      else {                                    // first line: use an opening balance if the statement shows one, else the words
+        const ob = lines.find(l => /opening|brought forward|previous balance|balance b\/?f|beginning balance/i.test(l) && !DATE.test(l));
+        const om = ob && [...ob.matchAll(AMT)].pop(), o = om && toNum(om[1]);
+        if (o && Math.abs(o.v - Math.abs(r.amt) - r.bal) < .015) r.amt = -Math.abs(r.amt);
+        else if (o && Math.abs(o.v + Math.abs(r.amt) - r.bal) < .015) r.amt = Math.abs(r.amt);
+        else r.amt = /salary|salaris|wage|deposit|credit|refund|interest|received|transfer in|payment from/i.test(r.desc) ? Math.abs(r.amt) : -Math.abs(r.amt);
+      }
+    }
+    return rows.length >= 2 ? csv(rows) : null;
+  }
+
+  return { ofx, qif, fromLines, csv };
+})();
+if (typeof module !== 'undefined') module.exports = Importers;
+
 if(typeof Engine==='undefined'){ document.body.innerHTML='<p style="font:18px sans-serif;padding:24px">This is the unfinished source file. Please open <b>SpendSight.html</b> instead.</p>'; throw new Error('source file opened'); }
 const money = (v,cur) => (v<0?'-':'')+cur+' '+Math.abs(v).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
@@ -1339,6 +1444,11 @@ function learned(){ try{ return JSON.parse(localStorage.getItem(LEARNKEY)||'{}')
 function learn(desc, cat){ try{ const l=learned(); l[Categorize.clean(desc)]=cat; localStorage.setItem(LEARNKEY,JSON.stringify(l)); }catch(e){} }
 let STATE=null, LAST=null, FILES=[], QUEUE=[], BUSY=false, VIEW='all'; const TRIED=new Set();
 const MAPKEY='gogo-tracker-layouts';
+// one-time rename: 'Health' became 'Health & fitness' (saved choices, budgets and need/want settings follow it)
+(function(){ try{ const N='Health & fitness';
+  const L=learned(); let ch=0; for(const k in L) if(L[k]==='Health'){ L[k]=N; ch=1; } if(ch) localStorage.setItem(LEARNKEY,JSON.stringify(L));
+  [BUDKEY,TYPEKEY].forEach(K=>{ const o=JSON.parse(localStorage.getItem(K)||'{}'); if('Health' in o){ o[N]=o.Health; delete o.Health; localStorage.setItem(K,JSON.stringify(o)); } });
+}catch(e){} })();
 function savedLayouts(){ try{ return JSON.parse(localStorage.getItem(MAPKEY)||'{}'); }catch(e){ return {}; } }
 // several statements: files are read one after another; a column question pauses the queue
 function enqueue(text, name){ QUEUE.push({text, name}); if(!BUSY) next(); }
@@ -1731,14 +1841,22 @@ function renderAsk(vt, cur){
 function renderCompare(vt, cur){
   const months=[...new Set(vt.map(x=>x.month))].sort(), nice=m=>new Date(m+'-01T00:00').toLocaleDateString('en-ZA',{month:'long',year:'numeric'});
   const ca=document.getElementById('ca'), cb=document.getElementById('cb'), ka=ca.value, kb=cb.value;
-  ca.innerHTML=months.slice().reverse().map(m=>`<option value="${m}">${nice(m)}</option>`).join('');
-  cb.innerHTML='<option value="avg3">Average of the 3 months before</option><option value="avgall">Average of all other months</option>'+months.slice().reverse().map(m=>`<option value="${m}">${nice(m)}</option>`).join('');
-  ca.value=months.includes(ka)?ka:months[months.length-1]; cb.value=[...cb.options].some(o=>o.value===kb)?kb:'avg3';
-  const A=vt.filter(x=>x.month===ca.value); let Bm;
-  if(cb.value==='avg3') Bm=months.filter(m=>m<ca.value).slice(-3); else if(cb.value==='avgall') Bm=months.filter(m=>m!==ca.value); else Bm=[cb.value];
-  const box=document.getElementById('cmpsum'), rowsBox=document.getElementById('cmprows');
-  if(!Bm.length){ box.innerHTML='<p class="small">There are no earlier months to compare with yet.</p>'; rowsBox.innerHTML=''; return; }
-  const C=Model.compare(A, vt.filter(x=>Bm.includes(x.month)), Bm.length, catTypes()), la=nice(ca.value).split(' ')[0], lb=Bm.length>1?`Average (${Bm.length} months)`:nice(Bm[0]).split(' ')[0];
+  const years=[...new Set(months.map(m=>m.slice(0,4)))].sort().reverse(), mOf=y=>months.filter(m=>m.startsWith(y));
+  const yOpts=years.length>1?'<optgroup label="Whole years (average month)">'+years.map(y=>`<option value="Y${y}">${y} (${mOf(y).length} month${mOf(y).length>1?'s':''})</option>`).join('')+'</optgroup>':'';
+  const mOpts='<optgroup label="Months">'+months.slice().reverse().map(m=>`<option value="${m}">${nice(m)}</option>`).join('')+'</optgroup>';
+  ca.innerHTML=yOpts+mOpts;
+  cb.innerHTML='<optgroup label="Usual month"><option value="avg3">Average of the 3 months before</option><option value="avgall">Average of all other months</option></optgroup>'+yOpts+mOpts;
+  ca.value=[...ca.options].some(o=>o.value===ka)?ka:months[months.length-1]; cb.value=[...cb.options].some(o=>o.value===kb)?kb:'avg3';
+  // the year-vs-year shortcut: shown when there are two or more years of statements
+  const yb=document.getElementById('cmpyears'); if(yb){ yb.classList.toggle('hidden',years.length<2); yb.onclick=()=>{ ca.value='Y'+years[0]; cb.value='Y'+years[1]; renderCompare(vt,cur); }; if(years.length>1) yb.textContent=`Compare ${years[0]} with ${years[1]}`; }
+  const Am=ca.value[0]==='Y'?mOf(ca.value.slice(1)):[ca.value], A=vt.filter(x=>Am.includes(x.month)); let Bm;
+  if(cb.value==='avg3') Bm=months.filter(m=>m<Am[0]).slice(-3); else if(cb.value==='avgall') Bm=months.filter(m=>!Am.includes(m)); else if(cb.value[0]==='Y') Bm=mOf(cb.value.slice(1)); else Bm=[cb.value];
+  const box=document.getElementById('cmpsum'), rowsBox=document.getElementById('cmprows'), ynote=document.getElementById('cmpnote');
+  if(!Bm.length||Bm.join()===Am.join()){ box.innerHTML='<p class="small">'+(Bm.length?'Pick two different periods.':'There are no earlier months to compare with yet.')+'</p>'; rowsBox.innerHTML=''; if(ynote) ynote.textContent=''; return; }
+  const C=Model.compare(A, vt.filter(x=>Bm.includes(x.month)), Bm.length, catTypes(), Am.length);
+  const lab=(v,ms)=>v[0]==='Y'?v.slice(1)+' avg':ms.length>1?`Average (${ms.length} months)`:nice(ms[0]).split(' ')[0]+(years.length>1?' '+ms[0].slice(2,4):'');
+  const la=lab(ca.value,Am), lb=lab(cb.value[0]==='Y'?cb.value:'',Bm);
+  if(ynote) ynote.textContent=(Am.length>1||Bm.length>1)?`Amounts are an average month, so a year with fewer months of statements still compares fairly${ca.value[0]==='Y'&&cb.value[0]==='Y'?` (${ca.value.slice(1)}: ${Am.length} months, ${cb.value.slice(1)}: ${Bm.length} months).`:'.'}`:'';
   const line=(name,a,b,good)=>{ const d=a-b, up=d>0; return `<tr><td>${name}</td><td class="n">${a}</td><td class="n">${b}</td></tr>`; };
   const f=v=>money(v,cur), pc=v=>Math.round(v*100)+'%';
   box.innerHTML=`<table><tr><th></th><th class="n">${la}</th><th class="n">${lb}</th><th class="n">Change</th></tr>`+
@@ -1869,7 +1987,7 @@ function totals(t){
 const viewCur=()=>VIEW==='all'?STATE.cur:FILES.find(f=>f.acct===VIEW).cur;
 let PANEL='pMonth';
 const PTITLE={pHelp:'Help',pMonth:'Dashboard',pYear:'Cash flow',pTx:'Transactions',pCmp:'Comparisons & insights',pPlan:'Savings & growth',pFiles:'Statements'};
-const PINTRO={pMonth:'Your money for the period you choose: what came in, what went out and what was left.',pYear:'Every month side by side, so you can spot good and tight months.',pTx:'Every payment in your statements. Search, filter or fix a category.',pCmp:'Pick a question to get an answer from your own data, or compare two months.',pPlan:'See where you could save each month, and what that could grow to over time.',pFiles:'Add, rename or remove your bank statements.',pHelp:'How SpendSight works, in plain words.'};
+const PINTRO={pMonth:'Your money for the period you choose: what came in, what went out and what was left.',pYear:'Every month side by side, so you can spot good and tight months.',pTx:'Every payment in your statements. Search, filter or fix a category.',pCmp:'Pick a question to get an answer from your own data, or compare two months or two whole years.',pPlan:'See where you could save each month, and what that could grow to over time.',pFiles:'Add, rename or remove your bank statements.',pHelp:'How SpendSight works, in plain words.'};
 function showPanel(p){
   const loaded=FILES.length>0; if(!loaded&&p!=='pHelp'&&p!=='pFiles'){ PANEL='pMonth'; p='pFiles'; } else PANEL=(!loaded&&p==='pFiles')?'pMonth':p; document.getElementById('ptitle').textContent=loaded||p==='pHelp'?PTITLE[p]:'Welcome';
   document.getElementById('pintro').textContent=loaded||p==='pHelp'?PINTRO[p]:'';
@@ -2031,12 +2149,48 @@ function saveStatements(){ const on=document.getElementById('keepon').checked;
 const drop=document.getElementById('drop'), file=document.getElementById('file');
 function readFile(f){
   if(!f) return fail("I couldn't get the file. Try clicking the box and choosing it instead.");
-  if(/\.(pdf|xlsx|xls|numbers|ofx|qif|jpg|jpeg|png|heic|doc|docx|zip)$/i.test(f.name)) return fail(`"${f.name}" isn't a CSV file. In your banking app, export the statement as CSV (sometimes called "Download as spreadsheet / comma-separated").`);
+  const n=f.name.toLowerCase(), ext=(n.match(/\.([a-z0-9]+)$/)||[])[1]||'';
+  if(['doc','docx','zip','numbers'].includes(ext)) return fail(`"${f.name}" can't be read. Please use a CSV, PDF, Excel, OFX/QIF statement, or a photo of the statement.`);
+  if(ext==='pdf') return viaReader(f,'PDF',pdfLines);
+  if(/^(jpe?g|png|webp|heic|heif)$/.test(ext)||/^image\//.test(f.type)) return viaReader(f,'photo',photoLines);
+  if(/^xlsx?$/.test(ext)) return viaReader(f,'Excel',xlsxCsv);
   const r=new FileReader();
-  r.onload=()=>enqueue(Engine.decode(r.result), f.name);
+  r.onload=()=>{ const t=Engine.decode(r.result);
+    if(ext==='ofx'||ext==='qfx'||/<OFX>|<STMTTRN>/i.test(t)){ const c=Importers.ofx(t); return c?enqueue(c,f.name.replace(/\.\w+$/,'')):fail(`"${f.name}": no transactions found in this OFX file.`); }
+    if(ext==='qif'||/^!Type:/m.test(t)){ const c=Importers.qif(t); return c?enqueue(c,f.name.replace(/\.\w+$/,'')):fail(`"${f.name}": no transactions found in this QIF file.`); }
+    enqueue(t, f.name); };
   r.onerror=()=>fail("The file couldn't be read. Try choosing it again.");
   r.readAsArrayBuffer(f);
 }
+// PDF / photo / Excel: the reader is fetched once from a CDN, then everything runs on this device (the file itself is never sent anywhere)
+const LIBS={pdf:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', ocr:'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'};
+const libP={};
+function lib(k){ return libP[k]||(libP[k]=new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=LIBS[k]; s.onload=ok; s.onerror=()=>{ delete libP[k]; no(new Error('offline')); }; document.head.appendChild(s); })); }
+function busy(msg){ const c=document.getElementById('check'); document.getElementById('out').classList.remove('hidden'); c.className='status'; c.textContent=msg; }
+async function viaReader(f, kind, fn){
+  try{ busy(`Reading your ${kind} "${f.name}"… ${kind==='photo'?'(about 10–30 seconds)':''}`);
+    const out=await fn(f, p=>busy(`Reading your ${kind}… ${p}`));
+    const c=Array.isArray(out)?Importers.fromLines(out):out;
+    if(!c) return fail(`I couldn't find transaction lines in "${f.name}". ${kind==='photo'?'Try a sharper, straight-on photo in good light, one page per photo.':'If your bank offers a CSV download, that always works best.'}`);
+    enqueue(c, f.name.replace(/\.\w+$/,'')+(kind==='CSV'?'':` (from ${kind})`));
+    setTimeout(()=>{ const k=document.getElementById('check'); if(k&&!/bad/.test(k.className)) k.insertAdjacentHTML('beforeend',`<br><span class="small">Read from a ${kind}: check a few amounts against the original. The balance check above tells you if any line was missed.</span>`); },400);
+  }catch(e){ fail(e.message==='offline'?`Reading a ${kind} needs internet the first time (to fetch the reader). Connect and try again, or use a CSV.`:`"${f.name}" couldn't be read (${e.message}).`); }
+}
+async function pdfLines(f, prog){
+  await lib('pdf'); const P=window.pdfjsLib; P.GlobalWorkerOptions.workerSrc=LIBS.pdf.replace('pdf.min.js','pdf.worker.min.js');
+  const doc=await P.getDocument({data:await f.arrayBuffer()}).promise, lines=[];
+  for(let i=1;i<=doc.numPages;i++){ prog(`page ${i} of ${doc.numPages}`);
+    const items=(await (await doc.getPage(i)).getTextContent()).items.filter(t=>t.str.trim()), rows=[];
+    items.forEach(t=>{ const y=t.transform[5], x=t.transform[4]; let r=rows.find(r=>Math.abs(r.y-y)<3); if(!r) rows.push(r={y,it:[]}); r.it.push({x,s:t.str,w:t.width}); });
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>{ r.it.sort((a,b)=>a.x-b.x); let s='',end=null; r.it.forEach(t=>{ s+=(end==null?'':t.x-end>8?'   ':' ')+t.s; end=t.x+t.w; }); lines.push(s); }); }
+  if(!lines.join('').trim()) throw new Error('this PDF is a scanned image; take a photo or screenshot of each page instead');
+  return lines;
+}
+async function photoLines(f, prog){
+  await lib('ocr'); const w=await Tesseract.createWorker('eng',1,{logger:m=>{ if(m.status==='recognizing text') prog(Math.round(m.progress*100)+'%'); }});
+  const {data}=await w.recognize(f); await w.terminate(); return data.text.split('\n');
+}
+async function xlsxCsv(f){ await lib('xlsx'); const wb=XLSX.read(await f.arrayBuffer()); return XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]); }
 function fileFrom(e){
   const dt=e.dataTransfer; if(!dt) return null;
   if(dt.files && dt.files.length) return [...dt.files];
