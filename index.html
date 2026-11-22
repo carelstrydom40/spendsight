@@ -1462,7 +1462,9 @@ const Invest = (() => {
     for (const t of tx.filter(t => t.sym && (t.type === 'buy' || t.type === 'sell' || t.type === 'snap')).sort(byDate)) {
       const k = t.acct + '|' + t.sym, h = H[k] || (H[k] = { acct: t.acct, sym: t.sym, name: t.name || t.sym, qty: 0, cost: 0, realised: 0, lastPrice: null, lastDate: null, trades: 0, snapOnly: false, costKnown: true });
       if (t.type === 'buy' || t.type === 'sell') h.trades++;
-      if (t.type === 'snap' && !h.trades && t.qty > 0) {                // a holdings screen with no trade history: it sets the position
+      if (t.type === 'snap' && !h.trades && t.valueOnly) {           // a screen that shows only value (and cost): one position worth that value
+        h.qty = 1; h.valueOnly = true; h.snapOnly = true; h.costKnown = t.cost != null; h.cost = t.cost || 0; }
+      else if (t.type === 'snap' && !h.trades && t.qty > 0) {                // a holdings screen with no trade history: it sets the position
         h.qty = t.qty; h.snapOnly = true; h.costKnown = t.cost != null; h.cost = t.cost || 0; }
       if (t.type === 'buy') { h.qty += t.qty; h.cost += t.amount + (t.fee || 0); }
       else if (t.type === 'sell') {
@@ -1471,7 +1473,8 @@ const Invest = (() => {
         if (h.qty < 1e-9) { h.qty = 0; h.cost = 0; }
       }
       if (t.price > 0 && t.type !== 'snap') { h.lastPrice = t.price; h.lastDate = t.date; }
-      if (t.type === 'snap' && t.qty > 0 && t.amount > 0) { h.lastPrice = t.amount / t.qty; h.lastDate = t.date; }
+      if (t.type === 'snap' && t.valueOnly && t.amount > 0) { h.lastPrice = t.amount; h.lastDate = t.date; }
+      else if (t.type === 'snap' && t.qty > 0 && t.amount > 0) { h.lastPrice = t.amount / t.qty; h.lastDate = t.date; }
     }
     return Object.values(H).map(h => {
       const p = prices[h.sym] && (!h.lastDate || prices[h.sym].date >= h.lastDate) ? prices[h.sym] : (h.lastPrice ? { price: h.lastPrice, date: h.lastDate, src: 'statement' } : null);
@@ -1582,7 +1585,8 @@ const Invest = (() => {
   function history(S) {
     const pts = []; let inv = 0;
     for (const t of S.tx) if (t.type === 'dep' || t.type === 'wd') { inv += t.type === 'dep' ? t.amount : -t.amount; pts.push({ date: t.date, invested: r2(inv) }); }
-    const snaps = {}; S.tx.filter(t => t.type === 'snap').forEach(t => { snaps[t.date] = r2((snaps[t.date] || 0) + t.amount); });
+    const snaps = {}, costs = {}; S.tx.filter(t => t.type === 'snap').forEach(t => { snaps[t.date] = r2((snaps[t.date] || 0) + t.amount); if (t.cost != null) costs[t.date] = r2((costs[t.date] || 0) + t.cost); });
+    if (!pts.length) Object.entries(costs).sort().forEach(([date, v]) => pts.push({ date, invested: v }));
     return { invested: pts, values: Object.entries(snaps).sort().map(([date, v]) => ({ date, v })) };
   }
 
@@ -1839,6 +1843,70 @@ const Broker = (() => {
     return { rows: out, holdings: true, asAt };
   }
 
+  // VALUE + PROFIT/LOSS screens (e.g. a phone app's holdings list): no units or price, only each holding's current
+  // value and its profit or loss (amount and %). Read by POSITION: every plain money amount is one holding's value;
+  // its name is the text to the left in the same band, its profit/loss the signed amount to the right.
+  // Cost = value - profit. When the % can be read, it must agree (profit / cost = %); otherwise the line is held.
+  function fromValueScreen(words, cur, today, allText) {
+    if (!words || !words.length) return { rows: [] };
+    const W = words.filter(w => w.t && w.t.trim()).map(w => ({ ...w, t: w.t.trim(), y: (w.y0 + w.y1) / 2, h: w.y1 - w.y0 })).sort((a, b) => a.y - b.y || a.x0 - b.x0);
+    const hMed = W.map(w => w.h).sort((a, b) => a - b)[W.length >> 1] || 20;
+    // visual lines, then money tokens rebuilt from neighbouring words ("R58" "165.44" -> R58 165.44; "+" "R8" "091.22")
+    const lines = []; for (const w of W) { const L = lines.find(l => Math.abs(l.y - w.y) < hMed * .6); if (L) { L.w.push(w); L.y = (L.y * (L.w.length - 1) + w.y) / L.w.length; } else lines.push({ y: w.y, w: [w] }); }
+    const toks = [];
+    for (const L of lines) { const ws = L.w.sort((a, b) => a.x0 - b.x0);
+      for (let i = 0; i < ws.length; i++) {
+        let t = ws[i].t, x0 = ws[i].x0, x1 = ws[i].x1, j = i, sign = '';
+        if (/^[+\-−]$/.test(t) && ws[i + 1] && /^\(?R?\d/.test(ws[i + 1].t)) { sign = t === '+' ? '+' : '-'; j = i + 1; t = ws[j].t; }
+        const lead = t.match(/^\(?([+\-−])/); if (lead) { sign = lead[1] === '+' ? '+' : '-'; t = t.replace(/^\(?[+\-−]\s*/, '(').replace(/^\(\(/, '('); }
+        if (/^\(?R?\$?\d/.test(t)) {
+          let txt = t.replace(/^\(/, '');
+          while (ws[j + 1] && /^\d{3}([.,]\d{1,2})?\)?%?\)?$/.test(ws[j + 1].t) && /\d$/.test(txt.replace(/[)%]/g, '')) && !/[.,]\d{2}$/.test(txt)) { j++; txt += ' ' + ws[j].t; }
+          const pct = /%/.test(txt) || (ws[j + 1] && /^%\)?$/.test(ws[j + 1].t)), money = /R|\$/.test(txt) || /[.,]\d{2}\)?$/.test(txt);
+          const v = smart(txt.replace(/[^\d., ]/g, '').replace(/ (?=\d{3}\b)/g, ''), '.');
+          if (v != null) toks.push({ kind: pct ? 'pct' : sign ? 'pl' : money && /R|\$/.test(txt) ? 'value' : 'num', v: sign === '-' ? -v : v, raw: txt, x0, x1: ws[j].x1, y: L.y });
+          i = j; continue;
+        }
+        toks.push({ kind: 'word', t, x0, x1, y: L.y });
+      }
+    }
+    const vals = toks.filter(t => t.kind === 'value' && /[.,]\d{2}$/.test(t.raw)); if (vals.length < 1) return { rows: [] };
+    const vx = vals.map(v => v.x0).sort((a, b) => a - b)[vals.length >> 1];
+    const anchors = vals.filter(v => Math.abs(v.x0 - vx) < hMed * 6).sort((a, b) => a.y - b.y);
+    const head = toks.find(t => t.kind === 'word' && /^(holding|holdings|current|value|profit\/loss)$/i.test(t.t) && t.y < anchors[0].y);
+    const out = [];
+    anchors.forEach((a, k) => {
+      const prev = anchors[k - 1], next = anchors[k + 1], gap = next ? next.y - a.y : prev ? a.y - prev.y : hMed * 6;
+      const top = prev ? (prev.y + a.y) / 2 : Math.max(head ? head.y + hMed : -1e9, a.y - gap / 2), bot = next ? (a.y + next.y) / 2 : a.y + gap / 2;
+      const band = toks.filter(t => t.y >= top && t.y < bot);
+      const nameWords = band.filter(t => (t.kind === 'word' || t.kind === 'num' && /^\d{1,3}$/.test(t.raw)) && t.x1 < a.x0 - hMed * .3 && /[A-Za-z]{2,}|^\d{1,3}$/.test(t.t || t.raw) && !/^(ETF|ETN|TFSA)$/.test(t.t)).sort((p, q) => p.y - q.y || p.x0 - q.x0);
+      const nw = nameWords.filter(t => t.kind === 'word' || nameWords.some(w => w.kind === 'word' && Math.abs(w.y - t.y) < hMed * .6 && w.x1 <= t.x0));   // a number belongs to a name only after a word on its line ("Markets 50"), not icons
+      const name = nw.map(t => (t.t || t.raw).replace(/[^A-Za-z0-9&+'.-]+$/g, '').replace(/^[^A-Za-z0-9]+/, '')).filter(Boolean).join(' ').replace(/\s{2,}/g, ' ').trim();
+      const right = band.filter(t => t.x0 > a.x1 - hMed);
+      const pl = right.find(t => t.kind === 'pl'), pct = right.find(t => t.kind === 'pct');
+      const notes = ['read from a holdings screen (value and profit/loss)'];
+      const value = a.v, cost = pl ? Math.round((value - pl.v) * 100) / 100 : null;
+      if (!name) notes.push('name not found');
+      if (!pl) notes.push('profit/loss not found');
+      let checked = false;   // the % sign is often lost in photos, so the amount's sign decides; only the size of the % is compared
+      if (pl && pct && cost > 0) { checked = Math.abs(Math.abs(pl.v / cost * 100) - Math.abs(pct.v)) <= .015 + Math.abs(pct.v) * .001; if (!checked) notes.push(`profit/loss does not match the % (${pct.v}%)`); }
+      else if (pl) notes.push('profit/loss could not be checked against the %');
+      out.push({ tx: { date: today, type: 'snap', sym: name.toUpperCase().slice(0, 60), name, qty: 0, valueOnly: true, price: 0, amount: Math.abs(value), fee: 0, cost, cur, acct: '' },
+        notes, sure: !!name && !!pl && checked, band: { top, bot, x: a.x1 } });
+    });
+    return { rows: out, holdings: true, valueScreen: true, asAt: null };
+  }
+
+  function recheckValueRow(r, text) {
+    const t = String(text).replace(/[−–]/g, '-'), plm = t.match(/([+-])\s*R\s?(\d{1,3}(?:[ ,]\d{3})*[.,]\d{2})/), pcm = t.match(/([+-])?\s*(\d{1,3}[.,]\d{2})\s*%/);
+    if (!plm) return r;
+    const pl = (plm[1] === '-' ? -1 : 1) * smart(plm[2].replace(/ /g, ''), '.'), cost = Math.round((r.tx.amount - pl) * 100) / 100;
+    const pct = pcm ? smart(pcm[2], '.') : null, ok = pct != null && cost > 0 && Math.abs(Math.abs(pl / cost * 100) - pct) <= .015 + pct * .001;
+    if (!ok) return r;
+    r.tx.cost = cost; r.notes = r.notes.filter(n => !/profit\/loss/.test(n)).concat([`checked: profit ${pl >= 0 ? '+' : ''}${pl.toFixed(2)} is ${pct}% of cost`]); r.sure = !!r.tx.name;
+    return r;
+  }
+
   // compare with what is already saved: mark duplicates so they are not added twice
   function dedupe(rows, existing) {
     const have = new Set(existing.map(Invest.key)), seen = new Set();
@@ -1846,7 +1914,7 @@ const Broker = (() => {
     return rows;
   }
 
-  return { PROFILES, parseCsv, mapColumns, fromCsv, fromLines, fromHoldings, dedupe, typeOf, num, date, dateOrder };
+  return { PROFILES, parseCsv, mapColumns, fromCsv, fromLines, fromHoldings, fromValueScreen, recheckValueRow, dedupe, typeOf, num, date, dateOrder };
 })();
 if (typeof module !== 'undefined') module.exports = Broker;
 
@@ -1946,7 +2014,7 @@ const InvestUI = (() => {
     if (!S.tx.length) return `<div class="card"><p>No transactions yet. <a href="#" data-upload="1">Upload a statement or a screenshot of your holdings</a> to start.</p></div>`;
     const C = Invest.concentration(S), I = Invest.income(S, today()), Hs = Invest.history(S), B = Invest.benchmark(S, D.bench, today());
     const miss = S.missing.length ? `<div class="status warn" style="margin-bottom:12px">${S.missing.length} holding${S.missing.length > 1 ? 's have' : ' has'} no price yet (${S.missing.map(h => esc(h.sym)).join(', ')}), so ${S.missing.length > 1 ? 'they are' : 'it is'} left out of the value. Add the price under <a href="#" data-goto="hold">Holdings</a>.</div>` : '';
-    const plain = S.invested == null ? `Your holdings are worth <b>${fmt(S.total, cur)}</b>. To see your gain, add your broker's transaction history, or type each holding's cost under Holdings.` : `You put in <b>${fmt(S.invested, cur)}</b> (after withdrawals). It is now worth <b>${fmt(S.total, cur)}</b>, ${S.gain >= 0 ? 'a gain' : 'a loss'} of <b class="${S.gain >= 0 ? 'in' : 'out'}">${fmt(Math.abs(S.gain), cur)}</b>${S.gainPct != null ? ` (${pc(S.gainPct)})` : ''}. ${S.yearly != null ? `That is about <b>${pc(S.yearly)} a year</b>, counting when you put each amount in.` : ''}`;
+    const plain = S.invested == null ? `Your holdings are worth <b>${fmt(S.total, cur)}</b>. To see your gain, add your broker's transaction history, or type each holding's cost under Holdings.` : S.snapOnly ? `Your holdings cost <b>${fmt(S.invested, cur)}</b> and are now worth <b>${fmt(S.total, cur)}</b>, ${S.gain >= 0 ? 'a gain' : 'a loss'} of <b class="${S.gain >= 0 ? 'in' : 'out'}">${fmt(Math.abs(S.gain), cur)}</b>${S.gainPct != null ? ` (${pc(S.gainPct)})` : ''}. <span class="small">A yearly return needs the dates you invested: add your broker's transaction history for that.</span>` : `You put in <b>${fmt(S.invested, cur)}</b> (after withdrawals). It is now worth <b>${fmt(S.total, cur)}</b>, ${S.gain >= 0 ? 'a gain' : 'a loss'} of <b class="${S.gain >= 0 ? 'in' : 'out'}">${fmt(Math.abs(S.gain), cur)}</b>${S.gainPct != null ? ` (${pc(S.gainPct)})` : ''}. ${S.yearly != null ? `That is about <b>${pc(S.yearly)} a year</b>, counting when you put each amount in.` : ''}`;
     let h = miss + `<div class="plain">${plain}</div><div class="kpis" style="margin:12px 0 16px">
       <div class="stat hero"><div class="l">Total value</div><div class="v">${fmt(S.total, cur)}</div></div>
       <div class="stat"><div class="l">Invested</div><div class="v">${fmt(S.invested, cur)}</div></div>
@@ -1985,11 +2053,21 @@ const InvestUI = (() => {
     STXEMG: { cls: 'ETF', country: 'Global (emerging)', region: 'Emerging markets', cur: 'Mixed', sector: 'Mixed (MSCI Emerging Markets)' },
     STXPRO: { cls: 'Property', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'Property' }
   };
+  const BYNAME = [      // from each fund's published mandate: what it tracks, never guessed weights
+    [/top ?40/i, { cls: 'ETF', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'Mixed (top 40 SA companies)' }],
+    [/divi ?plus|dividend/i, { cls: 'ETF', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'High-dividend SA shares' }],
+    [/msci emerging|emerging markets?/i, { cls: 'ETF', country: 'Global (emerging)', region: 'Emerging markets', cur: 'Mixed', sector: 'Mixed (MSCI Emerging Markets)' }],
+    [/msci world|ftse all[- ]world|all[- ]world/i, { cls: 'ETF', country: 'Global (developed)', region: 'Global', cur: 'Mixed', sector: 'Mixed (MSCI World)' }],
+    [/s&p ?500/i, { cls: 'ETF', country: 'United States', region: 'North America', cur: 'USD', sector: 'Mixed (S&P 500)' }],
+    [/nasdaq/i, { cls: 'ETF', country: 'United States', region: 'North America', cur: 'USD', sector: 'Mostly technology (Nasdaq 100)' }],
+    [/property|reit/i, { cls: 'Property', country: 'South Africa', region: 'Africa', cur: 'ZAR', sector: 'Property' }],
+    [/gold/i, { cls: 'Other', country: 'Global', region: 'Global', cur: 'USD', sector: 'Gold' }]
+  ];
   const DEV = /united states|usa|canada|united kingdom|uk|germany|france|netherlands|switzerland|japan|australia|global \(developed\)|ireland|sweden|denmark|norway|spain|italy|belgium|new zealand|singapore|hong kong/i;
   const EMG = /south africa|china|india|brazil|mexico|indonesia|taiwan|korea|turkey|saudi|poland|chile|global \(emerging\)|egypt|thailand|malaysia|philippines/i;
   function effMeta(S) {
     const M = {};
-    for (const h of S.open) { const m = { ...(KNOWN[h.sym] || {}), ...Object.fromEntries(Object.entries(D.meta[h.sym] || {}).filter(([, v]) => v)) };
+    for (const h of S.open) { const m = { ...((BYNAME.find(([re]) => re.test(h.name || h.sym)) || [])[1] || {}), ...(KNOWN[h.sym] || {}), ...Object.fromEntries(Object.entries(D.meta[h.sym] || {}).filter(([, v]) => v)) };
       m.hold = h.name && h.name !== h.sym ? h.sym + ' · ' + h.name : h.sym;
       m.market = m.country ? (EMG.test(m.country) ? 'Emerging markets' : DEV.test(m.country) ? 'Developed markets' : null) : null;
       M[h.sym] = m; }
@@ -2010,20 +2088,24 @@ const InvestUI = (() => {
   // five simple 0-5 scores from the user's own numbers, drawn as one shape: bigger and rounder = more balanced
   function shape(S, I, C) {
     const regions = new Set(Object.values(effMeta(S)).map(m => m.region).filter(Boolean)).size;
+    // null = not known from what was added (shown as "–" with the reason, never as 0 or as a perfect score)
+    const M = effMeta(S), funds = S.open.filter(h => h.value != null && /ETF|unit trust/i.test((M[h.sym] || {}).cls || '')).length;
+    const eff = C.count + funds * 9;                  // an index fund already holds many companies
+    const noFeeInfo = S.snapOnly && !S.fees, noIncInfo = S.snapOnly && !I.last12;
     const sc = [
-      ['Spread', C.count ? Math.min(5, (C.count >= 10 ? 3 : C.count >= 5 ? 2 : C.count >= 2 ? 1 : 0) + (C.top && C.top.pct < .2 ? 2 : C.top && C.top.pct < .35 ? 1 : 0)) : 0, C.top ? `${C.count} holdings; biggest is ${pc(C.top.pct)}` : 'no prices yet'],
+      ['Spread', C.count ? Math.min(5, (eff >= 30 ? 3 : eff >= 10 ? 2 : eff >= 2 ? 1 : 0) + (C.top && C.top.pct < .2 ? 2 : C.top && C.top.pct < .5 ? 1 : 0)) : 0, C.top ? `${C.count} holding${C.count === 1 ? '' : 's'}${funds ? ` (${funds} index fund${funds === 1 ? '' : 's'}, each holding many companies)` : ''}; biggest is ${pc(C.top.pct)}` : 'no prices yet'],
       ['Regions', Math.min(5, regions * 1.25), `${regions || 'no'} region${regions === 1 ? '' : 's'} set`],
-      ['Low costs', S.costPct == null ? 0 : S.costPct < .005 ? 5 : S.costPct < .01 ? 4 : S.costPct < .02 ? 3 : S.costPct < .04 ? 2 : 1, `fees ${pc(S.costPct)} of money put in`],
-      ['Income', I.yieldPct == null ? 0 : Math.min(5, I.yieldPct / .008), `${pc(I.yieldPct)} paid out in 12 months`],
-      ['Growth', S.yearly == null ? 0 : Math.max(0, Math.min(5, (S.yearly + .02) / .03)), S.yearly == null ? 'needs prices for all holdings' : `${pc(S.yearly)} a year so far`]
+      ['Low costs', noFeeInfo ? null : S.costPct == null ? 0 : S.costPct < .005 ? 5 : S.costPct < .01 ? 4 : S.costPct < .02 ? 3 : S.costPct < .04 ? 2 : 1, noFeeInfo ? 'fees are not on this screen: add a statement or transaction history' : `fees ${pc(S.costPct)} of money put in`],
+      ['Income', noIncInfo ? null : I.yieldPct == null ? 0 : Math.min(5, I.yieldPct / .008), noIncInfo ? 'dividends are not on this screen: add a statement or transaction history' : `${pc(I.yieldPct)} paid out in 12 months`],
+      ['Growth', S.yearly != null ? Math.max(0, Math.min(5, (S.yearly + .02) / .03)) : null, S.yearly != null ? `${pc(S.yearly)} a year so far` : S.gainPct != null ? `${pc(S.gainPct)} in total so far; a yearly figure needs the dates you invested` : 'needs prices for all holdings']
     ];
     const C0 = 110, Rr = 80, n = sc.length, pt = (i, v) => { const ang = -Math.PI / 2 + i * 2 * Math.PI / n; return [C0 + Rr * v / 5 * Math.cos(ang), C0 + Rr * v / 5 * Math.sin(ang)]; };
     const grid = [1, 2, 3, 4, 5].map(l => `<polygon points="${sc.map((_, i) => pt(i, l).join(',')).join(' ')}" fill="none" stroke="var(--line)"/>`).join('');
-    const poly = sc.map(([, v], i) => pt(i, Math.max(.3, v)).map(x => x.toFixed(1)).join(',')).join(' ');
-    const avg = sc.reduce((a, x) => a + x[1], 0) / n, col = avg >= 3.5 ? '#2f9e8f' : avg >= 2 ? '#d08a2e' : '#c4513f';
+    const poly = sc.map(([, v], i) => pt(i, Math.max(.3, v || 0)).map(x => x.toFixed(1)).join(',')).join(' ');
+    const known = sc.filter(x => x[1] != null), avg = known.reduce((a, x) => a + x[1], 0) / Math.max(1, known.length), col = avg >= 3.5 ? '#2f9e8f' : avg >= 2 ? '#d08a2e' : '#c4513f';
     const labels = sc.map(([k], i) => { const [x, y] = pt(i, 6.3); return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${k}</text>`; }).join('');
     return `<div class="donutwrap"><svg viewBox="-34 -4 288 228" class="donut" role="img" aria-label="Portfolio shape">${grid}<polygon points="${poly}" fill="${col}55" stroke="${col}" stroke-width="2"/>${labels}</svg>
-      <div class="legend">${sc.map(([k, v, why]) => `<div><span class="lk"><b>${k}</b><br><span class="small">${why}</span></span><b>${Math.round(v * 10) / 10}/5</b></div>`).join('')}</div></div>
+      <div class="legend">${sc.map(([k, v, why]) => `<div><span class="lk"><b>${k}</b><br><span class="small">${why}</span></span><b>${v == null ? '–' : Math.round(v * 10) / 10 + '/5'}</b></div>`).join('')}</div></div>
       <p class="small">A quick picture of your own numbers: a bigger, rounder shape means more balanced. It is not a rating of any investment and not advice.</p>`;
   }
 
@@ -2062,7 +2144,7 @@ const InvestUI = (() => {
   }
   function line(Hs, cur) {
     const pts = [...Hs.invested.map(p => ({ d: p.date, v: p.invested })), ...Hs.values.map(p => ({ d: p.date, v: p.v }))];
-    if (pts.length < 2) return '<p class="small">A chart appears once there are two or more dates.</p>';
+    if (new Set(pts.map(p => p.d)).size < 2) return `<p class="small">${Hs.values.length ? 'You have one snapshot so far. Add a new screenshot or statement each month (same account) and this line builds up, showing how your value grows against what it cost.' : 'A chart appears once there are two or more dates.'}</p>`;
     const W = 640, H = 200, ds = pts.map(p => +new Date(p.d)), x0 = Math.min(...ds), x1 = Math.max(...ds) || x0 + 1, vmax = Math.max(...pts.map(p => p.v), 1);
     const X = d => 40 + (W - 50) * ((+new Date(d) - x0) / Math.max(1, x1 - x0)), Y = v => H - 20 - (H - 40) * v / vmax;
     let inv = '', last = null; Hs.invested.forEach(p => { inv += (inv ? ` L${X(p.date).toFixed(1)},${Y(last).toFixed(1)} L` : 'M') + `${X(p.date).toFixed(1)},${Y(p.invested).toFixed(1)}`; last = p.invested; });
@@ -2089,8 +2171,8 @@ const InvestUI = (() => {
     if (!H.length) return '<div class="card"><p>No holdings yet.</p></div>';
     const syms = [...new Set(H.map(h => h.sym))];
     return `<div class="card"><h3>Holdings</h3><div style="overflow-x:auto"><table><tr><th>Holding</th><th>Account</th><th class="n">Units</th><th class="n">Cost</th><th class="n">Price</th><th class="n">Value</th><th class="n">Gain</th></tr>
-      ${H.map(h => { const c = acct(h.acct).cur; return `<tr><td><b>${esc(h.sym)}</b><br><span class="small">${esc(h.name)}</span></td><td class="small">${esc(acct(h.acct).name)}</td><td class="n">${+h.qty.toFixed(4)}</td><td class="n">${h.snapOnly ? `<input type="number" step="any" data-hcost="${esc(h.acct + '|' + h.sym)}" value="${h.costKnown ? h.cost : ''}" placeholder="what you paid" style="width:110px">` : fmt(h.cost, c)}</td>
-        <td class="n">${h.price != null ? fmt(h.price, c) + `<br><span class="small">${h.priceDate}</span>` : '<span class="warn small">no price</span>'}</td><td class="n">${fmt(h.value, c)}</td><td class="n ${h.unrealised >= 0 ? 'in' : 'out'}">${h.unrealised == null ? '–' : fmt(h.unrealised, c) + '<br><span class="small">' + pc(h.pct) + '</span>'}</td></tr>`; }).join('')}</table></div>
+      ${H.map(h => { const c = acct(h.acct).cur; return `<tr><td><b>${esc(h.sym)}</b><br><span class="small">${esc(h.name)}</span></td><td class="small">${esc(acct(h.acct).name)}</td><td class="n">${h.valueOnly ? '–' : +h.qty.toFixed(4)}</td><td class="n">${h.snapOnly ? `<input type="number" step="any" data-hcost="${esc(h.acct + '|' + h.sym)}" value="${h.costKnown ? h.cost : ''}" placeholder="what you paid" style="width:110px">` : fmt(h.cost, c)}</td>
+        <td class="n">${h.valueOnly ? `<span class="small">value on ${h.priceDate}</span>` : h.price != null ? fmt(h.price, c) + `<br><span class="small">${h.priceDate}</span>` : '<span class="warn small">no price</span>'}</td><td class="n">${fmt(h.value, c)}</td><td class="n ${h.unrealised >= 0 ? 'in' : 'out'}">${h.unrealised == null ? '–' : fmt(h.unrealised, c) + '<br><span class="small">' + pc(h.pct) + '</span>'}</td></tr>`; }).join('')}</table></div>
       <p class="small">${H.some(h => h.snapOnly) ? 'For holdings added from a screenshot, type what you paid in total (your broker shows it as cost or purchase value) to see your gain. ' : ''}Cost uses the average-cost method. Prices come from your statements, or from you below. ${curs.length > 1 ? 'Amounts are in each account\'s own currency.' : ''}</p></div>
       <div class="card"><h3>Update a price or a holding's details</h3><p class="small">Type today's price from your broker's app. Details power the "How your money is spread" chart.</p><div style="overflow-x:auto"><table><tr><th>Holding</th><th>Price</th><th>Type</th><th>Sector</th><th>Country</th><th>Region</th><th>Currency</th></tr>
       ${syms.map(s => { const m = D.meta[s] || {}, p = D.prices[s] || {}; return `<tr><td><b>${esc(s)}</b></td><td><input type="number" step="0.0001" data-pr="${esc(s)}" value="${p.price ?? ''}" placeholder="price" style="width:100px"></td>
@@ -2131,24 +2213,26 @@ const InvestUI = (() => {
     return `<div class="card" id="revcard" style="margin-top:14px"><h3>Check before saving: ${esc(REVIEW.name)} → ${esc(A.name || '')}</h3>
       <p>${R.length} ${H ? 'holdings' : 'lines'} found. <b>${ok}</b> look right and are ticked. ${R.filter(r => !r.sure && !r.dup).length ? `<span class="warn">${R.filter(r => !r.sure && !r.dup).length} need you to check them</span> (shown first; fix the boxes, then tick).` : ''} ${R.filter(r => r.dup).length ? `${R.filter(r => r.dup).length} are already saved and are left out.` : ''}</p>
       ${H ? `<div class="row" style="margin-bottom:8px"><label for="rvdate"><b>Values on</b></label><input type="date" id="rvdate" value="${R[0] ? R[0].tx.date : today()}"><span class="small">${REVIEW.asAt ? 'the date shown on the statement' : 'no date was shown, so today is used: change it if the screen is older'}</span></div>` : ''}
-      ${REVIEW.kind === 'photo' ? '<p class="small">Read from a photo: compare each line with your screen before saving.</p>' : ''}
-      <div style="overflow-x:auto;max-height:460px"><table><tr><th>Add</th>${H ? '' : '<th>Date</th><th>Type</th>'}<th>Holding</th><th class="n">Units</th><th class="n">${H ? 'Value' : 'Amount'}</th>${H ? '<th class="n">Cost (optional)</th>' : '<th class="n">Fee</th>'}<th>Note</th></tr>
+      ${REVIEW.kind === 'photo' ? `<p class="small">Read from a photo: compare each line with your screen before saving.${R.some(r => r.tx.valueOnly) ? ' This screen shows value and profit/loss, so cost = value − profit, checked against the %. Units are not shown on this screen.' : ''}</p>` : ''}
+      <div style="overflow-x:auto;max-height:460px"><table><tr><th>Add</th>${H ? '' : '<th>Date</th><th>Type</th>'}<th>Holding</th><th class="n">Units</th><th class="n">${H ? 'Value' : 'Amount'}</th>${H ? '<th class="n">Cost (optional)</th>' : '<th class="n">Fee</th>'}</tr>
       ${R.map((r, i) => ({ r, i })).sort((a, b) => (a.r.dup - b.r.dup) || (a.r.sure - b.r.sure)).map(({ r, i }) => `<tr${r.dup ? ' style="opacity:.5"' : ''}><td><input type="checkbox" data-rv="${i}" ${r.sure && !r.dup ? 'checked' : ''} aria-label="Add this line"></td>${H ? '' : `<td>${r.tx.date || '<span class="warn">?</span>'}</td>`}
         ${H ? '' : `<td><select data-rt="${i}"><option value="">?</option>${Object.entries(Invest.TYPES).map(([k, n]) => `<option value="${k}"${r.tx.type === k ? ' selected' : ''}>${n}</option>`).join('')}</select></td>`}
-        <td><input type="text" data-rs="${i}" value="${esc(r.tx.sym)}" style="width:120px">${r.tx.name && r.tx.name.toUpperCase() !== r.tx.sym ? `<br><span class="small">${esc(r.tx.name)}</span>` : ''}</td><td class="n"><input type="number" step="any" data-rq="${i}" value="${r.tx.qty || ''}" style="width:90px"></td><td class="n"><input type="number" step="any" data-ra="${i}" value="${r.tx.amount || ''}" style="width:110px"></td>
+        <td><input type="text" data-rs="${i}" value="${esc(r.tx.sym)}" style="width:190px">${r.tx.name && r.tx.name.toUpperCase() !== r.tx.sym ? `<br><span class="small">${esc(r.tx.name)}</span>` : ''}<div class="small ${r.sure ? 'ok' : 'warn'}" style="max-width:260px">${r.dup ? 'already saved' : esc(r.notes.filter(n => !/holdings screen|date used/.test(n)).join('; ')) || '✓ looks right'}</div></td><td class="n">${r.tx.valueOnly ? '<span class="small">not shown</span>' : `<input type="number" step="any" data-rq="${i}" value="${r.tx.qty || ''}" style="width:90px">`}</td><td class="n"><input type="number" step="any" data-ra="${i}" value="${r.tx.amount || ''}" style="width:110px"></td>
         <td class="n">${H ? `<input type="number" step="any" data-rc="${i}" value="${r.tx.cost ?? ''}" style="width:100px">` : (r.tx.fee || '')}</td>
-        <td class="small ${r.sure ? '' : 'warn'}">${r.dup ? 'already saved' : esc(r.notes.filter(n => !/holdings screen|date used/.test(n)).join('; ')) || 'ok'}</td></tr>`).join('')}</table></div>
+</tr>`).join('')}</table></div>
       <div class="row" style="margin-top:10px"><button id="rvsave">Save ticked ${H ? 'holdings' : 'lines'}</button><button class="ghost" id="rvcancel">Cancel</button></div></div>`;
   }
 
   // ---------- the one upload page: a file that looks like an investment statement comes here
   let PEND = null;
-  function incoming({ file, text, lines, kind }) {
+  async function incoming({ file, text, lines, kind }) {
     load();
     let res;
     if (text) res = Broker.fromCsv(text, '?', 'R');
-    else { const tr = Broker.fromLines(lines, '?', 'R'), ho = Broker.fromHoldings(lines, '?', 'R', today());
-      res = tr.rows.length >= 2 && tr.rows.length >= ho.rows.length ? tr : ho; }
+    else { const tr = Broker.fromLines(lines, '?', 'R'), ho = Broker.fromHoldings(lines, '?', 'R', today()), vs = lines.words ? Broker.fromValueScreen(lines.words, 'R', today()) : { rows: [] };
+      const good = r => r.rows.filter(x => x.sure).length;
+      res = tr.rows.length >= 2 && tr.rows.length >= ho.rows.length && tr.rows.length >= vs.rows.length ? tr : vs.rows.length && (good(vs) >= good(ho) || !ho.rows.some(x => x.tx.qty)) ? vs : ho;
+      if (res === vs && vs.rows.some(r => !r.sure) && typeof refineValueRows === 'function') { upMsg('Checking each holding\'s profit and loss…'); await refineValueRows(lines.canvas, vs.rows, m => upMsg('Checking… ' + m)); upMsg(''); } }
     if (res.error || !res.rows || !res.rows.length) {
       upMsg(`I couldn't find investments in "${file.name}". ${kind === 'photo' ? 'Make sure each holding\'s name, units and value are visible; a screenshot reads better than a photo of a screen.' : 'If your broker offers a CSV or Excel download, that reads best.'} If this is a bank statement, choose "Bank statement" above and add it again.`, 'bad'); return; }
     PEND = { file, kind, res, name: file.name, holdings: !!res.holdings, lines, text }; REVIEW = null; upRender();
@@ -2159,10 +2243,13 @@ const InvestUI = (() => {
     if (done) { box.innerHTML = `<div class="status ok" style="margin-top:14px">${done} <a href="#" id="upseeinv">See your portfolio →</a></div>`; $('upseeinv').onclick = () => { TAB = 'ov'; showPanel('pInv'); return false; }; return; }
     if (!PEND) { box.innerHTML = ''; return; }
     if (!REVIEW) {
-      const n = PEND.res.rows.length, guess = ((PEND.name + ' ' + (PEND.lines || []).slice(0, 15).join(' ') + ' ' + (PEND.text || '').slice(0, 600)).match(/easy ?equities|satrix|sygnia|etfsa|allan gray|coronation|10x|absa|fnb|standard bank|investec|outvest|interactive brokers|schwab|vanguard|trading ?212/i) || [''])[0];
+      const n = PEND.res.rows.length, hay = PEND.name + ' ' + (PEND.lines || []).join(' ') + ' ' + (PEND.text || '').slice(0, 800);
+      const plat = (hay.match(/easy ?equities|etfsa|allan gray|coronation|10x|absa|fnb|standard bank|investec|outvest|interactive brokers|schwab|trading ?212|sygnia alpha|satrix app/i) || [''])[0] || (/DIY Shares|My Funds|Watchlist/.test(hay) ? 'EasyEquities' : '');
+      const typ = /\bTFSA\b|tax[- ]free/i.test(hay) ? 'tfsa' : /retirement annuity|\bRA\b/.test(hay) ? 'ra' : /\bUSD\b|offshore|international/i.test(hay) ? 'offshore' : 'disc';
+      const guess = [plat.replace(/easy ?equities/i, 'EasyEquities'), { tfsa: 'TFSA', ra: 'RA', offshore: 'Offshore', disc: '' }[typ]].filter(Boolean).join(' ');
       box.innerHTML = `<div class="card" style="margin-top:14px"><h3>Investment statement found</h3><p>${PEND.holdings ? `I found <b>${n} holding${n > 1 ? 's' : ''}</b> (what you own today).` : `I found <b>${n} transaction${n > 1 ? 's' : ''}</b>.`} Which account is it for?</p>
         <div class="row"><select id="upacct">${D.accounts.map(a => `<option value="${a.id}">${esc(a.name)} (${Invest.ACCT[a.type]})</option>`).join('')}<option value="new"${D.accounts.length ? '' : ' selected'}>+ A new account</option></select></div>
-        <div class="row" id="upnew" style="margin-top:8px${D.accounts.length ? ';display:none' : ''}"><input type="text" id="upnm" placeholder="Name, e.g. EasyEquities TFSA" value="${esc(guess)}" style="flex:1;min-width:180px"><select id="upty">${Object.entries(Invest.ACCT).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select><input type="text" id="upcu" value="R" style="width:60px" aria-label="Currency"></div>
+        <div class="row" id="upnew" style="margin-top:8px${D.accounts.length ? ';display:none' : ''}"><input type="text" id="upnm" placeholder="Name, e.g. EasyEquities TFSA" value="${esc(guess)}" style="flex:1;min-width:180px"><select id="upty">${Object.entries(Invest.ACCT).map(([k, v]) => `<option value="${k}"${k === typ ? ' selected' : ''}>${v}</option>`).join('')}</select><input type="text" id="upcu" value="R" style="width:60px" aria-label="Currency"></div>
         <div class="row" style="margin-top:10px"><button id="upgo">Continue</button><button class="ghost" id="upbank">No, it's a bank statement</button><button class="ghost" id="upcancel">Cancel</button></div></div>`;
       const sel = $('upacct'); sel.onchange = () => { $('upnew').style.display = sel.value === 'new' ? '' : 'none'; };
       $('upcancel').onclick = () => { PEND = null; upRender(); };
@@ -2192,7 +2279,7 @@ const InvestUI = (() => {
     on('#rvcancel', 'onclick', () => { REVIEW = null; onCancel(); });
     on('#rvsave', 'onclick', () => {
       const pick = [...q('[data-rv]')].filter(c => c.checked).map(c => R[+c.dataset.rv]);
-      const bad = pick.filter(r => !r.tx.type || !r.tx.date || !r.tx.amount || ((r.tx.type === 'buy' || r.tx.type === 'sell' || r.tx.type === 'snap') && (!r.tx.sym || !r.tx.qty)));
+      const bad = pick.filter(r => !r.tx.type || !r.tx.date || !r.tx.amount || ((r.tx.type === 'buy' || r.tx.type === 'sell' || r.tx.type === 'snap') && (!r.tx.sym || (!r.tx.qty && !r.tx.valueOnly))));
       if (!pick.length) { alert('Nothing is ticked yet.'); return; }
       if (bad.length) { alert(`${bad.length} ticked line${bad.length > 1 ? 's are' : ' is'} missing a date, type, amount, holding or units. Fill ${bad.length > 1 ? 'them' : 'it'} in or untick.`); return; }
       pick.forEach(r => { const t = { ...r.tx, id: uid(), src: REVIEW.id }; if (t.price === 0 && t.qty) t.price = Math.round(t.amount / t.qty * 10000) / 10000; D.tx.push(t); });
@@ -2987,7 +3074,8 @@ function guessKind(text, lines){
   const tr=Broker.fromLines(L,'?','R').rows, trades=tr.filter(r=>(r.tx.type==='buy'||r.tx.type==='sell')&&r.tx.qty&&r.sure).length;
   const dated=L.filter(l=>/^\s*(\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}|\d{1,2}\s+[A-Za-z]{3}[a-z]*\s+\d{2,4})\b/.test(l)).length, t=L.join(' ');
   const words=(t.match(/\b(units|shares|holdings?|portfolio|etf|unit trust|brokerage|dividends?|distribution|tax[- ]free|tfsa|satrix|easyequities|investment statement|retirement annuity)\b/gi)||[]).length;
-  if(trades>=2||(hold>=1&&dated<3)) return 'invest';
+  const vs=L.words?Broker.fromValueScreen(L.words,'R','2000-01-01').rows.filter(r=>r.tx.cost!=null&&r.tx.name).length:0;   // value + profit/loss cards
+  if(trades>=2||(hold>=1&&dated<3)||(vs>=1&&dated<3)||/profit\s*\/\s*loss|current value|unrealised/i.test(t)&&dated<3) return 'invest';
   return words>=3&&!/\b(available balance|pos purchase|card purchase|atm|overdraft)\b/i.test(t)?'invest':'bank';
 }
 async function readFile(f){
@@ -3005,7 +3093,7 @@ async function readFile(f){
     if(text&&(ext==='ofx'||ext==='qfx'||/<OFX>|<STMTTRN>/i.test(text))){ const c=Importers.ofx(text); return c?enqueue(c,f.name.replace(/\.\w+$/,'')):upMsg(`"${f.name}": no transactions found in this OFX file.`,'bad'); }
     if(text&&(ext==='qif'||/^!Type:/m.test(text))){ const c=Importers.qif(text); return c?enqueue(c,f.name.replace(/\.\w+$/,'')):upMsg(`"${f.name}": no transactions found in this QIF file.`,'bad'); }
     const k=UPKIND!=='auto'?UPKIND:guessKind(text,lines);
-    if(k==='invest') return InvestUI.incoming({file:f, text, lines, kind});
+    if(k==='invest') return await InvestUI.incoming({file:f, text, lines, kind});
     bankParsed(f, text, lines, kind);
   }catch(e){ upMsg(e.message==='offline'?`Reading a ${kind||'file like this'} needs internet the first time (to fetch the reader). Connect and try again, or use a CSV.`:e.message==='heic'?`"${f.name}" is an iPhone HEIC photo, which this browser can't open. Take a screenshot of the screen instead (screenshots are PNG), or in Photos choose Share › Save as JPEG, then add that.`:`"${f.name}" couldn't be read (${e.message}).`,'bad'); }
 }
@@ -3061,7 +3149,20 @@ async function ocrCanvas(img, prog){
   await lib('ocr'); const w=await Tesseract.createWorker('eng',1,{logger:m=>{ if(m.status==='recognizing text') prog(Math.round(m.progress*100)+'%'); }});
   await w.setParameters({preserve_interword_spaces:'1'});
   const {data}=await w.recognize(c); await w.terminate();
-  return data.text.split('\n').map(l=>l.replace(/\s{3,}/g,'   ').trim()).filter(Boolean);
+  const out=data.text.split('\n').map(l=>l.replace(/\s{3,}/g,'   ').trim()).filter(Boolean);
+  out.canvas=c;
+  out.words=(data.words||[]).map(x=>({t:x.text, x0:x.bbox.x0, x1:x.bbox.x1, y0:x.bbox.y0, y1:x.bbox.y1}));   // where each word sits: lets screens be read by position
+  return out;
+}
+// value + profit/loss screens: re-read each holding's right-hand column on its own, enlarged (small coloured text reads far better)
+async function refineValueRows(canvas, rows, prog){
+  if(!canvas||!rows.some(r=>!r.sure&&r.band)) return rows;
+  await lib('ocr'); const w=await Tesseract.createWorker('eng',1); await w.setParameters({tessedit_pageseg_mode:'6'});
+  for(const [i,r] of rows.entries()){ if(r.sure||!r.band) continue; prog&&prog(`checking holding ${i+1} of ${rows.length}`);
+    const b=r.band, x=Math.max(0,Math.round(b.x)), y=Math.max(0,Math.round(b.top)), cw=canvas.width-x, ch=Math.min(canvas.height,Math.round(b.bot))-y; if(cw<20||ch<10) continue;
+    const z=document.createElement('canvas'); z.width=cw*2; z.height=ch*2; const zx=z.getContext('2d'); zx.imageSmoothingQuality='high'; zx.drawImage(canvas,x,y,cw,ch,0,0,z.width,z.height);
+    const {data}=await w.recognize(z); Broker.recheckValueRow(r, data.text); }
+  await w.terminate(); return rows;
 }
 async function xlsxCsv(f){ await lib('xlsx'); const wb=XLSX.read(await f.arrayBuffer(),{cellDates:true}); return XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]],{dateNF:'yyyy-mm-dd'}); }   // date cells come out as 2025-03-01, not Excel day numbers
 function fileFrom(e){
