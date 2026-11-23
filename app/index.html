@@ -1966,11 +1966,12 @@ const Plans = (() => {
   };
   const FEATURE_NAME = { expenses: 'Spending insights', budgets: 'Budgets & savings plans', invest: 'Investment tracker' };
   const TRIAL_DAYS = 10;
-  const TRIAL_ENFORCED = false;     // false until payments work: nobody is locked out before they can pay. true = trial ends after TRIAL_DAYS.
-  const SUBSCRIBE_URL = '';         // the payment page (set when the payment provider is connected)
+  const KEY_SERVICE = 'https://moneyscope-keys.carelstrydom40.workers.dev';           // the Cloudflare Worker address (tools/worker/worker.js), e.g. https://moneyscope-keys.NAME.workers.dev
+  const TRIAL_ENFORCED = !!KEY_SERVICE;   // the trial only ends once keys can be issued automatically, so nobody is locked out
+  const SUBSCRIBE_URL = 'https://moneyscope.co.za/#pricing';
   const PUBLIC_KEY = {"kty": "EC", "crv": "P-256", "x": "dVsgx3pad4YylCyaRsQXyQM8Bw3WGhl_oqe75kKvz44", "y": "wI2kME-CcPi5JnlRdfz0ym-UihNt2BVOxzCSqR_NmmY", "ext": true};
   // ------------------------------------------
-  const KEY = 'ss-licence', TKEY = 'ms-trial-start', today = () => new Date().toISOString().slice(0, 10);
+  const KEY = 'ss-licence', TKEY = 'ms-trial-start', SKEY = 'ms-sub', today = () => new Date().toISOString().slice(0, 10);
   let enforced = TRIAL_ENFORCED, state = { plan: null, licence: null, why: 'trial', daysLeft: TRIAL_DAYS };
 
   function trialStart() { let d = null; try { d = localStorage.getItem(TKEY); if (!d) { d = today(); localStorage.setItem(TKEY, d); } } catch (e) { d = today(); } return d; }
@@ -1998,9 +1999,30 @@ const Plans = (() => {
   }
   async function enter(code) { const L = await verify(code); if (!L) return false; try { localStorage.setItem(KEY, code.trim()); } catch (e) {} state = { plan: L.plan, licence: L, why: 'licence', daysLeft: null }; return true; }
   // a subscription opens its plan's features; the trial opens everything except paused features; before payments exist, nothing is locked
+  // ---- automatic keys: checkout -> /activate; renew before expiry -> /refresh; cancel page -> /portal
+  async function call(route, body) {
+    const r = await fetch(KEY_SERVICE + route, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'failed'); return j;
+  }
+  async function activate(txn) {
+    if (!KEY_SERVICE) return false;
+    for (let i = 0; i < 4; i++) {                    // the payment can take a few seconds to settle
+      try { const j = await call('/activate', { transaction_id: txn }); try { localStorage.setItem(SKEY, j.sub); } catch (e) {} return enter(j.key); }
+      catch (e) { await new Promise(r => setTimeout(r, 3000)); }
+    }
+    return false;
+  }
+  async function refresh() {
+    let sub = null; try { sub = localStorage.getItem(SKEY); } catch (e) {}
+    if (!KEY_SERVICE || !sub) return;
+    const exp = state.licence && state.licence.exp, soon = new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10);
+    if (state.why === 'licence' && exp && exp > soon) return;
+    try { const j = await call('/refresh', { sub }); await enter(j.key); } catch (e) {}
+  }
+  async function portal() { let sub = null; try { sub = localStorage.getItem(SKEY); } catch (e) {} if (!KEY_SERVICE || !sub) return null; try { return (await call('/portal', { sub })).url; } catch (e) { return null; } }
   const can = f => state.why === 'licence' ? PLANS[state.plan].features.includes(f) : f === 'invest' ? false : (!enforced || state.why === 'trial');
   const needed = f => Object.entries(PLANS).find(([, p]) => p.features.includes(f))[0];
-  return { PLANS, FEATURE_NAME, TRIAL_DAYS, SUBSCRIBE_URL, load, enter, can, needed, get enforced() { return enforced; }, get state() { return state; },
+  return { PLANS, FEATURE_NAME, TRIAL_DAYS, SUBSCRIBE_URL, load, enter, can, needed, activate, refresh, portal, get keyService() { return KEY_SERVICE; }, get enforced() { return enforced; }, get state() { return state; },
     _test: { enforce: v => { enforced = v; }, setStart: d => { try { localStorage.setItem(TKEY, d); } catch (e) {} } } };
 })();
 if (typeof module !== 'undefined') module.exports = Plans;
@@ -3248,13 +3270,17 @@ const om=document.getElementById('omode'); om.value=Online.mode();
 const ominfo=()=>{ document.getElementById('omodeinfo').textContent={off:'Everything stays on your computer. Nothing is sent anywhere. If a transaction isn\'t recognised, you\'re asked to choose its category.',auto:'For unrecognised shops, only the shop name is looked up online. Amounts, dates and account details never leave your computer. If it\'s still unclear, you\'re asked.'}[om.value]; };
 om.onchange=()=>{ Online.setMode(om.value); ominfo(); if(STATE){ const keep=document.getElementById('month').value; combine(); document.getElementById('month').value=keep; month(keep);} }; ominfo();
 // trial / subscription line in the sidebar. The cancel link is small but always visible (consumer law requires easy cancelling)
-const MANAGE_URL='';   // the payment provider's "manage subscription" page, set when payments are connected
+const MANAGE_URL='#manage';   // opens Paddle's manage-or-cancel page through the key service
 function planNote(){ const st=Plans.state, el=document.getElementById('plannote'); if(!el) return;
   if(st.why==='licence') el.innerHTML=`MoneyScope subscription active.${MANAGE_URL?` <a href="${MANAGE_URL}" target="_blank" rel="noopener">Manage or cancel</a>`:''}`;
   else if(!Plans.enforced) el.textContent='';
   else if(st.why==='trial') el.innerHTML=`Free trial: <b>${st.daysLeft} day${st.daysLeft===1?'':'s'} left</b>.${Plans.SUBSCRIBE_URL?` <a href="${Plans.SUBSCRIBE_URL}" target="_blank" rel="noopener">Subscribe</a>`:''}`;
   else el.innerHTML='Free trial ended.'; }
-Plans.load().then(()=>{ planNote(); if(PANEL==='pInv') InvestUI.render(); if(Plans.enforced&&Plans.state.why==='expired') showPanel(PANEL); });
+document.addEventListener('click',async e=>{ const a=e.target.closest('a[href="#manage"]'); if(!a) return; e.preventDefault(); const w=window.open('','_blank'); const u=await Plans.portal(); if(u&&w) w.location=u; else { w&&w.close(); alert('Use the "Manage subscription" link in your Paddle receipt email, or email hello@moneyscope.co.za.'); } });
+Plans.load().then(async()=>{ const txn=(location.search.match(/[?&]txn=(txn_[a-z0-9]+)/)||[])[1];
+  if(txn){ upMsg&&upMsg('Activating your subscription…'); const ok=await Plans.activate(txn); upMsg(ok?'Welcome to MoneyScope! Your subscription is active and your 10-day free trial has started. Add a bank statement below to begin.':'Your payment went through. Activation is taking longer than usual: reload this page in a minute, or email hello@moneyscope.co.za.', ok?'ok':'warn'); history.replaceState(null,'',location.pathname); }
+  else await Plans.refresh();
+  planNote(); if(PANEL==='pInv') InvestUI.render(); if(Plans.enforced&&Plans.state.why==='expired') showPanel(PANEL); });
 document.getElementById('goSpend').onclick=()=>{ document.querySelector('#upkind [data-k=bank]').click(); document.getElementById('drop').scrollIntoView({behavior:'smooth',block:'center'}); };
 document.getElementById('goInvest').onclick=()=>{ document.querySelector('#upkind [data-k=invest]').click(); document.getElementById('drop').scrollIntoView({behavior:'smooth',block:'center'}); };
 document.querySelectorAll('#upkind button').forEach(b=>b.onclick=()=>{ UPKIND=b.dataset.k; document.querySelectorAll('#upkind button').forEach(x=>x.classList.toggle('on',x===b)); });
@@ -3263,7 +3289,7 @@ if(!SHOW_INVEST){ document.body.classList.add('noinvest'); const t=document.quer
   const st=document.querySelector('#steps li span'); if(st) st.textContent="a statement from your bank's website or app (or take a screenshot of it)";
   PINTRO.pFiles='Add your bank statements, and manage the ones you have added.'; }
 if(location.hash==='#sample'&&!FILES.length) setTimeout(()=>document.getElementById('sample').click(),300);   // the website's "see it with sample data" link
-if(/welcome=1/.test(location.search)) setTimeout(()=>{ const m=document.getElementById('upmsg'); if(m){ m.className='status ok'; m.textContent='Welcome to MoneyScope! Your 10-day free trial has started. Add a bank statement below to begin. Your activation key arrives by email.'; m.classList.remove('hidden'); } },400);
+if(/welcome=1/.test(location.search)) setTimeout(()=>{ const m=document.getElementById('upmsg'); if(m){ m.className='status ok'; m.textContent='Welcome to MoneyScope! Your 10-day free trial has started. Add a bank statement below to begin.'; m.classList.remove('hidden'); } },400);
 </script>
 </body>
 </html>
