@@ -278,7 +278,10 @@ const LIVE = { token: 'live_f08c5aafed268fd6dfc2c550009', monthly: 'pri_01m83aek
 const TEST = { token: 'test_03155ad62da6992c88d1c4ba2ff', monthly: 'pri_01m83cjs6k0g0rc946tska6dmf', yearly: 'pri_01m83ckrq1gmptqjdxep8h921m' };
 const testMode = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /paddle=test/.test(location.search);
 const PADDLE = testMode ? TEST : LIVE;
-try { if (testMode) Paddle.Environment.set('sandbox'); Paddle.Initialize({ token: PADDLE.token }); } catch (e) {}
+try { if (testMode) Paddle.Environment.set('sandbox');
+  // after a successful checkout, open the app with the transaction, so the app can fetch its key automatically
+  Paddle.Initialize({ token: PADDLE.token, eventCallback: ev => { if (ev && ev.name === 'checkout.completed' && ev.data && ev.data.transaction_id) setTimeout(() => { location.href = new URL('app/?txn=' + ev.data.transaction_id, location.href).href; }, 1500); } });
+} catch (e) {}
 function checkout(plan) {
   try { Paddle.Checkout.open({ items: [{ priceId: PADDLE[plan], quantity: 1 }], settings: { displayMode: 'overlay', theme: 'light', successUrl: new URL('app/?welcome=1', location.href).href } }); }
   catch (e) { location.href = 'app/'; }       // if checkout can't open, the app still works
