@@ -55,9 +55,9 @@ span.ok,p.ok{color:var(--okfg)} span.warn,p.warn{color:var(--warnfg)} span.bad,p
 .stat .l{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:500}
 .stat .v{font-size:1.35rem;font-weight:600;margin-top:6px;letter-spacing:-.01em}
 /* headline numbers on the dashboard */
-.kpis{display:grid;grid-template-columns:1.25fr repeat(4,1fr);gap:14px}
+.kpis{display:grid;grid-template-columns:minmax(0,1.25fr) repeat(4,minmax(0,1fr));gap:14px}
 .kpis .stat{background:var(--card);padding:16px 18px;border-radius:10px}
-.kpis .stat .v{font-size:1.6rem;overflow-wrap:anywhere}
+.kpis .stat .v{font-size:1.6rem}
 .kpis .hero{background:var(--card);border-color:var(--line);box-shadow:inset 3px 0 0 var(--maroon)}
 .kpis .hero .v{color:var(--ink)}
 #nws .grid{grid-template-columns:1fr 1fr} #nws .stat .v{font-size:1.1rem;white-space:nowrap}
@@ -75,8 +75,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .sv{display:grid;grid-template-columns:1fr 150px 110px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:.92rem}
 .sv input[type=range]{width:100%;accent-color:var(--maroon)} .sv .amt{text-align:right;font-variant-numeric:tabular-nums}
 input[type=range],input[type=checkbox]{accent-color:var(--maroon)}
-.proj{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
-.assume{display:flex;flex-wrap:wrap;gap:12px;font-size:.85rem;color:var(--muted)}
+.proj{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.assume{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:.85rem;color:var(--muted)}
 input[type=number],input[type=text],input[type=search],select{font:inherit;font-size:.9rem;padding:7px 10px;border-radius:6px;border:1px solid var(--line);background:var(--card2);color:var(--ink)}
 .assume input{width:70px;padding:4px 6px}
 .tabs{display:inline-flex;gap:0;margin:0 0 14px;border-bottom:1px solid var(--line)}
@@ -93,7 +93,7 @@ body.noinvest #navinv,body.noinvest #mainnav [data-p=pInv],body.noinvest #goInve
 #upmsg{margin:12px 0 0}
 .donutwrap{display:grid;grid-template-columns:minmax(160px,230px) minmax(0,1fr);gap:22px;align-items:center}.donut{width:100%;max-width:230px}
 .legend>div{display:grid;grid-template-columns:12px minmax(0,1fr) auto 56px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:.9rem}
-.legend>div:has(> .lk:first-child){grid-template-columns:minmax(0,1fr) 48px}.legend .dot{width:12px;height:12px;border-radius:3px}.legend .lk{overflow-wrap:anywhere}.legend b{text-align:right}
+.legend>div:has(> .lk:first-child){grid-template-columns:minmax(0,1fr) 48px}.legend .dot{width:12px;height:12px;border-radius:3px}.legend .lk{overflow-wrap:break-word}.legend b{text-align:right}
 .calcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .choose{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.choose button{text-align:left;padding:18px;background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:10px}.choose button:hover{border-color:var(--maroon)}.choose b{display:block;font-size:1.05rem;margin-bottom:4px}
 @media (max-width:640px){.donutwrap{grid-template-columns:1fr;justify-items:center}.legend{width:100%}.choose{grid-template-columns:1fr}}
@@ -111,7 +111,7 @@ svg text[fill="#222"],svg text[fill="#1e2846"],svg text[fill="#333"]{fill:var(--
 svg text[fill="#6b6b6b"],svg text[fill="#555"]{fill:var(--muted)}
 svg rect[fill="#1e2846"]{fill:var(--trunk)} svg rect[fill="#f1e8d6"]{fill:var(--card2)}
 svg path[stroke="#1e2846"]{stroke:var(--ink)} svg circle[fill="#1e2846"]{fill:var(--ink)} svg line[stroke="#ccc"],svg line[stroke="#ddd"]{stroke:var(--line)}
-@media (max-width:1100px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}.kpis{grid-template-columns:repeat(2,1fr)}.kpis .hero{grid-column:span 2}}
+@media (max-width:1100px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis .hero{grid-column:span 2}}
 @media (max-width:760px){body{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px;border-right:0;border-bottom:1px solid var(--line)}
   .logo{margin:0 8px}.navlab,.sidefoot .small{display:none}#mainnav{flex-direction:row;overflow-x:auto;width:100%}#mainnav button{white-space:nowrap;padding:8px 10px}
   .sidefoot{margin:0 0 0 auto;flex-direction:row}main{padding:14px}.sv{grid-template-columns:1fr 90px}.sv .amt{grid-column:2}.proj{grid-template-columns:1fr}.bar{grid-template-columns:100px 1fr 90px}}
@@ -142,7 +142,7 @@ svg{max-width:100%;height:auto}
 #tipbox{position:fixed;z-index:60;max-width:300px;background:var(--ink);color:var(--card);font-size:.82rem;line-height:1.45;padding:10px 12px;border-radius:8px;display:none;text-transform:none;letter-spacing:0;font-weight:400}
 .intro{margin:4px 0 0;color:var(--muted);font-size:.92rem;max-width:62ch}
 .plain{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:1rem;line-height:1.55}
-.steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0;margin:0 0 16px}
+.steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:0;margin:0 0 16px}
 .steps li{counter-increment:st;display:flex;flex-direction:column;gap:2px;padding:12px 14px 12px 48px;position:relative;background:var(--card2);border:1px solid var(--line);border-radius:8px;font-size:.88rem;color:var(--muted)}
 .steps li b{color:var(--ink);font-size:.95rem}
 .steps li::before{content:counter(st);position:absolute;left:14px;top:13px;width:24px;height:24px;border-radius:50%;background:var(--maroon);color:var(--heroink);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem}
@@ -158,6 +158,25 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
 @media (max-width:760px){.cu{grid-template-columns:1fr}.cuparts{grid-template-columns:1fr}}
 @media print{.side,#upcard,.tabs,button,.modal,#unkcard,.assume,input[type=range],#savecard input{display:none!important}
   body{display:block;background:#fff;color:#000} .card{break-inside:avoid;border-color:#ccc;box-shadow:none} .status{border:1px solid #ccc}}
+
+/* text never splits inside a word or an amount, whatever the data: amounts stay on one line and shrink to fit their box */
+.stat{container-type:inline-size}.stat .v{white-space:nowrap;font-size:min(1.35rem,12cqi)}.kpis .stat .v{font-size:min(1.6rem,13cqi)}
+.stat .l{overflow-wrap:normal;hyphens:manual}
+td.n,th.n,.n b,.legend b{white-space:nowrap}
+td,th,p,li,label,h3,h4,.small,.chip{overflow-wrap:break-word;word-break:normal}
+svg text{white-space:pre}
+@media(max-width:520px){.stat .l{letter-spacing:.02em;font-size:.64rem}}
+.steps li,.steps li>*{min-width:0;overflow-wrap:break-word}details li,details p{overflow-wrap:break-word;min-width:0}
+.nb{display:inline-block;white-space:normal!important;max-width:100%}
+#ftable td:nth-child(2){min-width:190px}#ftable td:nth-child(1){white-space:nowrap}
+.assume label{white-space:nowrap}
+#top td:first-child,#subs td:first-child{min-width:170px}#pTx .row{flex-wrap:wrap}#pTx .row select{max-width:100%;min-width:0}
+.mob{display:none}
+@media(max-width:1000px){.mob{display:inline}#ftable{overflow:visible}#ftable table,#ftable tbody{display:block;width:100%}#ftable tr:first-child{display:none}
+#ftable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"d a" "t t" "x x" "c b";gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+#ftable td{display:block;border:0;padding:0;min-width:0!important}#ftable .c-date{grid-area:d;font-size:.8rem;color:var(--muted)}#ftable .c-desc{grid-area:t}#ftable .c-acct{grid-area:x}
+#ftable .c-cat{grid-area:c}#ftable .c-amt{grid-area:a;text-align:right}#ftable .c-bal{grid-area:b;text-align:right;align-self:center}#ftable select{max-width:100%;width:auto;min-width:0}}
+#cmprows td:first-child,#cmp td:first-child,#cmpsum td:first-child{min-width:130px}#cmprows td:first-child .small{display:block}#top td:first-child{min-width:200px}
 </style>
 </head>
 <body class="nodata">
@@ -304,11 +323,11 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
     <div id="pTx" class="hidden"><div class="dash" style="margin-bottom:16px">
     <div class="card s6"><h3>Repeat payments (subscriptions &amp; debit orders)</h3><div id="subs"></div></div>
     <div class="card s6"><h3>Top places you paid</h3><div id="top"></div></div>
-    </div><div class="card"><h3>All transactions</h3>
+    </div><div class="card hidden" id="probcard" style="margin-bottom:16px"><h3>Needs your attention</h3><div id="probs"></div></div><div class="card" id="allcard"><h3>All transactions</h3>
       <div class="row"><input id="fq" type="search" placeholder="Search description…" aria-label="Search" style="flex:1;min-width:180px">
-        <select id="fm" aria-label="Month"></select><select id="fc" aria-label="Category"></select>
+        <select id="fm" aria-label="Month"></select><select id="fcat" aria-label="Category"></select>
         <select id="fd" aria-label="Money in or out"><option value="">In and out</option><option value="in">Money in</option><option value="out">Money out</option></select>
-        <select id="fs" aria-label="Sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="big">Largest amount</option><option value="small">Smallest amount</option></select></div>
+        <select id="fs" aria-label="Sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="big">Largest amount</option><option value="small">Smallest amount</option><option value="cat">Category (A to Z)</option><option value="catz">Category (Z to A)</option></select></div>
       <p class="small" id="fsum" style="margin:10px 0"></p><div id="ftable" style="overflow-x:auto"></div>
       <div class="row" style="margin-top:8px"><button class="ghost hidden" id="fmore">Show more</button></div></div></div>
     <div id="pFiles" class="hidden"></div>
@@ -316,6 +335,10 @@ details ol,.helpsteps{padding-left:20px;line-height:1.6}#pHelp .card{margin-bott
     <div class="modal hidden" id="namebox" role="dialog" aria-modal="true" aria-labelledby="namehead" style="z-index:60"><div class="mbox" style="max-width:420px">
       <b id="namehead"></b><input id="nameinput" type="text" maxlength="40" style="width:100%;margin:12px 0;padding:10px;font-size:1rem">
       <div class="row" style="justify-content:flex-end"><button class="ghost" id="namecancel">Cancel</button><button id="nameok">Save</button></div></div></div>
+    <div class="modal hidden" id="catbox" role="dialog" aria-modal="true" aria-labelledby="cathead" style="z-index:60"><div class="mbox" style="max-width:520px">
+      <b id="cathead">Your category names</b><p class="small" style="margin:6px 0 10px">Type a new name for any category. Everything in the app (lists, charts, budgets, what it remembers) uses your name from now on.</p>
+      <div id="catrows" style="max-height:55vh;overflow:auto"></div>
+      <div class="row" style="justify-content:space-between;margin-top:12px"><button class="ghost" id="catreset" type="button">Back to the original names</button><span class="row"><button class="ghost" id="catcancel" type="button">Cancel</button><button id="catok" type="button">Save names</button></span></div></div></div>
     <div class="modal hidden" id="askmodal" role="dialog" aria-modal="true" aria-labelledby="askhead"><div class="mbox">
       <div class="row" style="justify-content:space-between"><b id="askhead">Help sort these transactions</b><span class="small" id="askcount"></span></div>
       <p class="small" style="margin:6px 0 0">Choose the right category. Your choice is remembered next time (saved only on this computer).</p>
@@ -507,9 +530,10 @@ const Engine = (() => {
 
   // ---------- 8. turn rows into transactions with a given column map
   function extract(body, map) {
-    const tx = [];
+    const tx = []; tx.skipped = [];
     for (const r of body) {
-      const date = makeDate(dateParts(r[map.date]), map.order); if (!date) continue;
+      const date = makeDate(dateParts(r[map.date]), map.order);
+      if (!date) { if (r.some(v => /\d/.test(String(v || '')))) tx.skipped.push(r.map(v => String(v || '').trim()).filter(Boolean).join(' · ')); continue; }
       let amt;
       if (map.amount != null) {
         amt = num(r[map.amount], map.decs[map.amount]); if (amt == null) amt = 0;
@@ -774,10 +798,12 @@ const Categorize = (() => {
     [/fee|charge/i, 'Fees'], [/cash withdrawal|^cash$/i, 'Cash'], [/transfer/i, 'Transfers'], [/saving|invest/i, 'Savings'],
     [/income|salary|interest|payment received|deposit|allowance|refund/i, 'Income'], [/rent|housing|bond|home loan/i, 'Housing'], [/subscription/i, 'Subscriptions']];
 
+  // the same shop with changing numbers (dates, card or reference numbers) gets the same key
+  const loose = d => clean(d).toLowerCase().replace(/[0-9#*]+/g, ' ').replace(/\b(pos|card|purchase|debit|credit|ref|txn|payment|online)\b/g, ' ').replace(/\s+/g, ' ').trim();
   function one(desc, amt, bankCat, learned) {
     const raw = String(desc || '').toLowerCase();
     const c = clean(desc);
-    if (learned && learned[c]) return { cat: learned[c], why: 'you' };
+    if (learned && (learned[c] || learned['~' + loose(desc)])) return { cat: learned[c] || learned['~' + loose(desc)], why: 'you' };
     if (bankCat && !/^(other|general|uncategori[sz]ed|misc.*|sundry|)$/i.test(bankCat.trim())) { for (const [re, cat] of BANKCAT) if (re.test(bankCat)) return { cat, why: 'bank' }; }
     // ATM and fees are clear from the raw text before cleaning
     if (amt < 0 && /\bfees?\b|\bcharges?\b|geb[üu]hr|comisi[oó]n|frais|kosten|fooi/i.test(raw)) return { cat: 'Fees', why: 'word' };
@@ -817,7 +843,7 @@ const Categorize = (() => {
     return out;
   }
   const CATCOL = /^(parent category|category|kategorie|categoría|categoria|catégorie|categorie|spending category|kategori|isigaba|tag|tipo|group)$/i;
-  return { CATS, one, all, clean, CATCOL };
+  return { CATS, one, all, clean, loose, CATCOL };
 })();
 if (typeof module !== 'undefined') module.exports = Categorize;
 
@@ -1043,7 +1069,7 @@ const Charts = (() => {
   const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const PAL = ['#1f3a5f', '#4a6f9a', '#8fb0d3', '#0f7b5f', '#62a88a', '#b7791f', '#d9b36a', '#6b5b8a', '#a65a4e', '#667085', '#2f6f73', '#9aa7b8', '#7d8f69', '#a67c52', '#4f5d75', '#b8c2cc'];
   const colorOf = (cat, i) => PAL[Math.abs([...cat].reduce((a, c) => a * 31 + c.charCodeAt(0), 7)) % PAL.length] || PAL[i % PAL.length];
-  const short = (v, cur) => cur + ' ' + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + 'm' : Math.abs(v) >= 1e4 ? Math.round(Math.abs(v) / 1e3) + 'k' : Math.round(Math.abs(v)).toLocaleString('en-ZA'));
+  const short = (v, cur) => cur + (cur === 'R' ? ' ' : '') + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + 'm' : Math.abs(v) >= 1e4 ? Math.round(Math.abs(v) / 1e3) + 'k' : Math.round(Math.abs(v)).toLocaleString(cur === 'R' ? 'en-ZA' : 'en-US'));
 
   // 1. MONEY FLOW: where the month's money came from (left) and where it went (right), through one trunk
   function flow(sources, uses, cur) {
@@ -1052,16 +1078,23 @@ const Charts = (() => {
     if (tout > tin + .5) sources.push({ k: 'From your balance', v: tout - tin, c: '#9aa3b5' });
     if (tin > tout + .5) uses.push({ k: 'Left over', v: tin - tout, c: '#0f7b5f' });
     const total = Math.max(sources.reduce((a, x) => a + x.v, 0), uses.reduce((a, x) => a + x.v, 0)) || 1;
-    const W = 760, rowGap = 6, H = Math.max(260, Math.max(sources.length, uses.length) * 34 + 40), usable = H - 40 - rowGap * Math.max(sources.length, uses.length);
+    const W = 780, rowGap = 6, H = Math.max(260, Math.max(sources.length, uses.length) * 34 + 40), usable = H - 40 - rowGap * Math.max(sources.length, uses.length);
     const sc = usable / total, x0 = 150, x1 = 330, x2 = 430, x3 = 610;
     const trunkH = total * sc, ty = (H - trunkH) / 2;
+    // label rows: centred on their band, but pushed apart so two labels never overlap
+    const lab = list => { let yy = 20; const c = list.map(x => { const h = Math.max(2, x.v * sc), m = yy + h / 2 + 4; yy += h + rowGap; return m; });
+      for (let i = 1; i < c.length; i++) c[i] = Math.max(c[i], c[i - 1] + 15);
+      const over = c.length ? c[c.length - 1] - (H - 6) : 0; if (over > 0) { for (let i = c.length - 1; i >= 0; i--) { c[i] -= over; if (i && c[i - 1] > c[i] - 15) c[i - 1] = c[i] - 15; } }
+      return c; };
+    const nm = k => k.length > 18 ? k.slice(0, 17) + '…' : k;
+    const LY = lab(sources), RY = lab(uses);
     let out = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Money flow for the month">`;
     // left side
     let y = 20, ty0 = ty;
     sources.forEach((s, i) => {
       const h = Math.max(2, s.v * sc), c = s.c || colorOf(s.k, i);
       out += `<path d="M${x0},${y} C${x1 - 60},${y} ${x1 - 60},${ty0} ${x1},${ty0} L${x1},${ty0 + h} C${x1 - 60},${ty0 + h} ${x1 - 60},${y + h} ${x0},${y + h} Z" fill="${c}" opacity=".35"><title>${esc(s.k)}: ${short(s.v, cur)}</title></path>`;
-      out += `<rect x="${x0 - 8}" y="${y}" width="8" height="${h}" fill="${c}"/><text x="${x0 - 14}" y="${y + h / 2 + 4}" text-anchor="end" font-size="12" fill="#222">${esc(s.k)} <tspan fill="#6b6b6b">${short(s.v, cur)}</tspan></text>`;
+      out += `<rect x="${x0 - 8}" y="${y}" width="8" height="${h}" fill="${c}"/><text x="${x0 - 14}" y="${LY[i]}" text-anchor="end" font-size="12" fill="#222">${esc(nm(s.k))} <tspan fill="#6b6b6b">${short(s.v, cur)}</tspan></text>`;
       y += h + rowGap; ty0 += h;
     });
     out += `<rect x="${x1}" y="${ty}" width="${x2 - x1}" height="${trunkH}" fill="#1e2846" rx="6"/><text x="${(x1 + x2) / 2}" y="${ty + trunkH / 2 + 4}" text-anchor="middle" font-size="12" fill="#fff">this month</text>`;
@@ -1070,7 +1103,7 @@ const Charts = (() => {
     uses.forEach((u, i) => {
       const h = Math.max(2, u.v * sc), c = u.c || colorOf(u.k, i);
       out += `<path d="M${x2},${ty0} C${x2 + 60},${ty0} ${x2 + 60},${y} ${x3},${y} L${x3},${y + h} C${x2 + 60},${y + h} ${x2 + 60},${ty0 + h} ${x2},${ty0 + h} Z" fill="${c}" opacity=".45"><title>${esc(u.k)}: ${short(u.v, cur)}</title></path>`;
-      out += `<rect x="${x3}" y="${y}" width="8" height="${h}" fill="${c}"/><text x="${x3 + 14}" y="${y + h / 2 + 4}" font-size="12" fill="#222">${esc(u.k)} <tspan fill="#6b6b6b">${short(u.v, cur)}</tspan></text>`;
+      out += `<rect x="${x3}" y="${y}" width="8" height="${h}" fill="${c}"/><text x="${x3 + 14}" y="${RY[i]}" font-size="12" fill="#222">${esc(nm(u.k))} <tspan fill="#6b6b6b">${short(u.v, cur)}</tspan></text>`;
       y += h + rowGap; ty0 += h;
     });
     return out + '</svg>';
@@ -1115,8 +1148,8 @@ const Charts = (() => {
       const lines = wrap2(p.k), longest = Math.max(...lines.map(l => l.length), 6);
       const fs = Math.min(17, (1.7 * p.r) / (0.6 * longest), (1.5 * p.r) / lines.length);
       if (fs >= 10) {                                 // fits inside: the name (1-2 lines); amounts are in the list below
-        let y = p.y - (lines.length * fs) / 2 + fs * .8;
-        lines.forEach(l => { out += `<text x="${p.x}" y="${y.toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="#1e2846">${esc(l)}</text>`; y += fs; });
+        let y = p.y - (lines.length * fs * 1.15) / 2 + fs * .85;
+        lines.forEach(l => { out += `<text x="${p.x}" y="${y.toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="#1e2846">${esc(l)}</text>`; y += fs * 1.15; });
       } else out += `<text x="${p.x}" y="${p.y + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#1e2846">${p.n}</text>`;   // too small: a number, explained in the list below
       out += '</g>';
     }
@@ -2035,7 +2068,7 @@ if (typeof module !== 'undefined') module.exports = Plans;
 // Investments section (screen code). Uses Invest (maths), Broker (import), Plans (who may open it).
 const InvestUI = (() => {
   const esc = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-  const short = (v, cur) => cur + ' ' + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + 'm' : Math.abs(v) >= 1e4 ? Math.round(Math.abs(v) / 1e3) + 'k' : Math.round(Math.abs(v)).toLocaleString('en-ZA'));
+  const short = (v, cur) => cur + (cur === 'R' ? ' ' : '') + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + 'm' : Math.abs(v) >= 1e4 ? Math.round(Math.abs(v) / 1e3) + 'k' : Math.round(Math.abs(v)).toLocaleString(cur === 'R' ? 'en-ZA' : 'en-US'));
   const KEY = 'ss-invest', $ = id => document.getElementById(id), r2 = v => Math.round(v * 100) / 100;
   const pc = v => v == null ? '–' : (v * 100).toFixed(1).replace('.', ',') + '%';
   const today = () => new Date().toISOString().slice(0, 10);
@@ -2202,7 +2235,7 @@ const InvestUI = (() => {
     const o = { start: cl(SIM.start, 0, 1e12), monthly: cl(SIM.monthly, 0, 1e9), years: cl(SIM.years, 1, 60), ret: cl(SIM.ret, -50, 50) / 100, fee: cl(SIM.fee, 0, 20) / 100, inf: cl(SIM.inf, -10, 50) / 100, rise: cl(SIM.rise, 0, 50) / 100 };
     const real = $('simreal').checked, M = Model.compound(o), lo = Model.compound({ ...o, ret: Math.max(-.5, o.ret - cl(SIM.spread, 0, 20) / 100) }), hi = Model.compound({ ...o, ret: o.ret + cl(SIM.spread, 0, 20) / 100 });
     const dv = r => r.value;
-    $('simout').innerHTML = `<div class="stat hero"><div class="l">After ${o.years} years</div><div class="v in">${fmt(M.final, cur)}</div><div class="small">${real ? `worth about <b>${fmt(M.real, cur)}</b> in today's money` : 'in rands of that time'}</div></div>
+    $('simout').innerHTML = `<div class="stat hero"><div class="l">After ${o.years} years</div><div class="v in">${fmt(M.final, cur)}</div><div class="small">${real ? `worth about <b>${fmt(M.real, cur)}</b> in today's money` : 'in money of that time'}</div></div>
       <div class="stat"><div class="l">You put in</div><div class="v">${fmt(M.paid, cur)}</div></div><div class="stat"><div class="l">Growth on top</div><div class="v in">${fmt(M.growth, cur)}</div></div>
       <div class="stat"><div class="l">Fees cost you</div><div class="v out">${fmt(-M.feeCost, cur)}</div></div><div class="stat"><div class="l">Range</div><div class="v" style="font-size:1.05rem">${short(lo.final, cur)} – ${short(hi.final, cur)}</div></div>`;
     const W = 700, H = 240, P = 54, max = Math.max(1, ...hi.rows.map(r => Math.max(dv(r), r.paid))), X = y => P + y / o.years * (W - P - 12), Y = v => H - 26 - v / max * (H - 44);
@@ -2401,7 +2434,7 @@ const InvestUI = (() => {
 })();
 
 if(typeof Engine==='undefined'){ document.body.innerHTML='<p style="font:18px sans-serif;padding:24px">This is the unfinished source file. Please open <b>MoneyScope.html</b> instead.</p>'; throw new Error('source file opened'); }
-const money = (v,cur) => (v<0?'-':'')+cur+' '+Math.abs(v).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money = (v,cur) => (v<0?'-\u2060':'')+cur+(cur==='R'?'\u00a0':'')+Math.abs(v).toLocaleString(cur==='R'?'en-ZA':'en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
 const NOT_SPENDING = ['Transfers','Savings','Income','Own accounts'];
@@ -2426,10 +2459,46 @@ function newCategory(kind, done){
     const exists=catList().find(c=>c.toLowerCase()===n.toLowerCase()); if(exists) return done(exists);
     const C=customCats(); C[n]=kind||'out'; try{ localStorage.setItem(CUSTKEY,JSON.stringify(C)); }catch(e){} done(n); });
 }
-const NEWOPT='<option value="__new">+ New category…</option>';
+const NEWOPT='<option value="__new">+ New category…</option>', EDITOPT='<option value="__edit">✎ Rename or edit categories…</option>';
+// ---------- your own names for categories. Built-in ones keep working inside the app and are only shown with your name;
+// your own categories are renamed everywhere (saved choices, budgets, needs/wants).
+const LABELKEY='et-cat-labels', FIXED=['Income','Transfers','Savings','Own accounts','Uncategorised'];
+function catLabels(){ try{ return JSON.parse(localStorage.getItem(LABELKEY)||'{}'); }catch(e){ return {}; } }
+function catLabel(c){ return catLabels()[c]||c; }
+function relabel(root){ const L=catLabels(); if(!Object.keys(L).length||!root) return;
+  const w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; const fix=[];
+  while((n=w.nextNode())){ const v=n.nodeValue, t=v.trim(); if(!t) continue;
+    for(const k in L){ if(t===k){ fix.push([n, v.replace(k, L[k])]); break; } if(t.startsWith(k+' ')&&/^[\s\-−]*[R$€£¥]|^\s*[\d(×·:]/.test(t.slice(k.length+1))){ fix.push([n, v.replace(k, L[k])]); break; } } }
+  fix.forEach(([n,v])=>{ n.nodeValue=v; }); }
+// words joined by a hyphen (dates like 2026-04, phone and reference numbers) never break across two lines
+function nobreak(root){ if(!root||!root.nodeType) return; const w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+  while((n=w.nextNode())){ const p=n.parentElement; if(!p||p.closest('script,style,textarea,input,select,option,svg')) continue; if(/\w-\w/.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace(/(\w)-(?=\w)/g,'$1\u2011'); } }
+new MutationObserver(ms=>{ if(relabel.busy) return; relabel.busy=1; try{ ms.forEach(m=>m.addedNodes.forEach(x=>{ const r=x.nodeType===3?x.parentNode:x; relabel(r); if(r&&r.closest&&r.closest('main')) nobreak(r); })); } finally{ relabel.busy=0; } }).observe(document.documentElement,{childList:true,subtree:true});
+function renameEverywhere(from, to){ try{
+  const C=customCats(); if(from in C){ C[to]=C[from]; delete C[from]; localStorage.setItem(CUSTKEY,JSON.stringify(C)); }
+  const Lr=learned(); for(const k in Lr) if(Lr[k]===from) Lr[k]=to; localStorage.setItem(LEARNKEY,JSON.stringify(Lr));
+  [BUDKEY,TYPEKEY].forEach(K=>{ const o=JSON.parse(localStorage.getItem(K)||'{}'); if(from in o){ o[to]=o[from]; delete o[from]; localStorage.setItem(K,JSON.stringify(o)); } });
+  const D=Online.db(); let ch=0; for(const k in D) if(D[k].category===from){ D[k].category=to; ch=1; } if(ch) localStorage.setItem('gogo-merchant-db',JSON.stringify(D));
+}catch(e){} }
+function manageCats(){
+  const box=document.getElementById('catbox'), L=catLabels(), C=customCats(), list=catList().filter(c=>!FIXED.includes(c));
+  document.getElementById('catrows').innerHTML=list.map((c,i)=>`<div class="row" style="margin:4px 0;flex-wrap:nowrap"><label for="cr${i}" class="small" style="flex:0 0 44%;overflow-wrap:break-word">${esc(c)}${c in C?' <span class="small">(yours)</span>':''}</label><input id="cr${i}" data-c="${esc(c)}" maxlength="30" value="${esc(L[c]||c)}" style="flex:1;min-width:0;padding:8px"></div>`).join('');
+  box.classList.remove('hidden');
+  document.getElementById('catcancel').onclick=()=>{ box.classList.add('hidden'); reTx(); };
+  document.getElementById('catreset').onclick=()=>{ document.querySelectorAll('#catrows input').forEach(i=>i.value=i.dataset.c); };
+  document.getElementById('catok').onclick=()=>{
+    const N=catLabels(), taken=new Set(catList().map(c=>(N[c]||c).toLowerCase())); let err='';
+    document.querySelectorAll('#catrows input').forEach(i=>{ const c=i.dataset.c, v=i.value.trim().slice(0,30)||c, old=(N[c]||c);
+      if(v===old) return; if(taken.has(v.toLowerCase())&&v.toLowerCase()!==c.toLowerCase()){ err=`"${v}" is already used.`; return; }
+      taken.delete(old.toLowerCase()); taken.add(v.toLowerCase());
+      if(c in customCats()){ renameEverywhere(c, v); delete N[c]; } else if(v===c) delete N[c]; else N[c]=v; });
+    try{ localStorage.setItem(LABELKEY,JSON.stringify(N)); }catch(e){}
+    if(err) alert(err+' Other names were saved.');
+    box.classList.add('hidden'); const y=scrollY, keep=document.getElementById('month').value; combine(); document.getElementById('month').value=keep; month(keep); relabel(document.body); requestAnimationFrame(()=>scrollTo(0,y)); };
+}
 function budgets(){ try{ return JSON.parse(localStorage.getItem(BUDKEY)||'{}'); }catch(e){ return {}; } }
 function learned(){ try{ return JSON.parse(localStorage.getItem(LEARNKEY)||'{}'); }catch(e){ return {}; } }
-function learn(desc, cat){ try{ const l=learned(); l[Categorize.clean(desc)]=cat; localStorage.setItem(LEARNKEY,JSON.stringify(l)); }catch(e){} }
+function learn(desc, cat){ try{ const l=learned(), k='~'+Categorize.loose(desc); l[Categorize.clean(desc)]=cat; if(k.length>3) l[k]=cat; localStorage.setItem(LEARNKEY,JSON.stringify(l)); }catch(e){} }
 let STATE=null, LAST=null, FILES=[], QUEUE=[], BUSY=false, VIEW='all'; const TRIED=new Set();
 const MAPKEY='gogo-tracker-layouts';
 // one-time rename: 'Health' became 'Health & fitness' (saved choices, budgets and need/want settings follow it)
@@ -2529,7 +2598,9 @@ async function research(items){
 }
 function ask(desc, cat){
   const g=Online.groupKey(desc); STATE.tx.filter(x=>Online.groupKey(x.desc)===g).forEach(x=>learn(x.desc, cat)); Online.remember(desc, {status:'user-confirmed', category:cat, conf:{merchant:1,sector:1,category:1}, source:'you'});
-  const keep=document.getElementById('month').value; combine(); document.getElementById('month').value=keep; month(keep);
+  // stay exactly where you were in the list
+  const y=scrollY, keep=document.getElementById('month').value; combine(); document.getElementById('month').value=keep; month(keep);
+  scrollTo(0,y); requestAnimationFrame(()=>scrollTo(0,y));
 }
 function showMapper(res, current){
   const {headers, body}=res; const map=current||res.map||{};
@@ -2872,13 +2943,14 @@ function renderPlan(vt, cur){
   function calc(){
     const o={start:CALC.start, monthly:CALC.monthly, years:Math.max(1,Math.min(100,CALC.years)), ret:CALC.ret/100, fee:CALC.fee/100, inf:CALC.inf/100, rise:CALC.rise/100}, R=Model.compound(o), real=document.getElementById('creal').checked;
     const dv=r=>real?r.real:r.value;
-    document.getElementById('calcout').innerHTML=`<div class="stat"><div class="l">After ${o.years} years</div><div class="v in">${money(real?R.real:R.final,cur)}</div><div class="small">${real?`in today's money (${money(R.final,cur)} in future rands)`:'in future rands'}</div></div>
-      <div class="stat"><div class="l">You put in (all payments added up)</div><div class="v">${money(R.paid,cur)}</div><div class="small">in rands as paid</div></div><div class="stat"><div class="l">Growth on top</div><div class="v in">${money(R.growth,cur)}</div><div class="small">in future rands · ${Math.round(R.growth/Math.max(1,R.final)*100)}% of the final amount</div></div>
+    document.getElementById('calcout').innerHTML=`<div class="stat"><div class="l">After ${o.years} years</div><div class="v in">${money(real?R.real:R.final,cur)}</div><div class="small">${real?`in today's money (${money(R.final,cur)} in future money)`:'in future money'}</div></div>
+      <div class="stat"><div class="l">You put in (all payments added up)</div><div class="v">${money(R.paid,cur)}</div><div class="small">as you paid it</div></div><div class="stat"><div class="l">Growth on top</div><div class="v in">${money(R.growth,cur)}</div><div class="small">in future money · ${Math.round(R.growth/Math.max(1,R.final)*100)}% of the final amount</div></div>
       <div class="stat"><div class="l">Fund fees cost you</div><div class="v out">${money(-R.feeCost,cur)}</div><div class="small">over ${o.years} years at ${CALC.fee}%</div></div>`;
     const W=700,H=220,P=50,max=Math.max(1,...R.rows.map(r=>Math.max(dv(r),r.paid))),X=y=>P+y/o.years*(W-P-10),Y=v=>H-26-v/max*(H-44);
     const path=f=>R.rows.map((r,j)=>`${j?'L':'M'}${X(r.y).toFixed(1)},${Y(f(r)).toFixed(1)}`).join('');
+    const ly=[Math.max(14,Y(dv(R.rows[R.rows.length-1]))-8)]; ly[1]=Math.min(H-26,Math.max(Y(R.paid)+16, ly[0]+16)); if(ly[1]-ly[0]<16) ly[0]=ly[1]-16;
     document.getElementById('calcchart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Growth over time"><path d="${path(dv)} L${X(o.years)},${Y(0)} L${X(0)},${Y(0)}Z" fill="#2e8b5722"/><path d="${path(dv)}" fill="none" stroke="#2e8b57" stroke-width="3"/><path d="${path(r=>r.paid)}" fill="none" stroke="#8b1e3f" stroke-width="2" stroke-dasharray="6 5"/>
-      ${[0,.25,.5,.75,1].map(f=>Math.round(o.years*f)).map(y=>`<text x="${X(y)}" y="${H-8}" font-size="12" text-anchor="middle" fill="#6b6b6b">${y}y</text>`).join('')}<text x="${W-14}" y="${Y(dv(R.rows[R.rows.length-1]))-8}" text-anchor="end" font-size="12" fill="#2e8b57">could grow to</text><text x="${W-14}" y="${Y(R.paid)+16}" text-anchor="end" font-size="12" fill="#8b1e3f">you put in</text></svg>`;
+      ${[0,.25,.5,.75,1].map(f=>Math.round(o.years*f)).map(y=>`<text x="${X(y)}" y="${H-8}" font-size="12" text-anchor="middle" fill="#6b6b6b">${y}y</text>`).join('')}<text x="${W-14}" y="${ly[0]}" text-anchor="end" font-size="12" fill="#2e8b57">could grow to</text><text x="${W-14}" y="${ly[1]}" text-anchor="end" font-size="12" fill="#8b1e3f">you put in</text></svg>`;
     document.getElementById('goalout').textContent=money(Model.needed(+document.getElementById('goal').value||0, o),cur);
   }
   calc();
@@ -2902,7 +2974,7 @@ function renderPlan(vt, cur){
     document.getElementById('wifchart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Next 12 months: now vs what-if"><line x1="${P}" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#ddd"/>
       <path d="${pth(base,x=>x.balance)}" fill="none" stroke="#9aa3b5" stroke-width="2.5" stroke-dasharray="6 5"/><path d="${pth(sc,x=>x.balance+x.invested)}" fill="none" stroke="#2e8b57" stroke-width="3"/>
       <text x="${W-6}" y="${Y(end(base).balance)+14}" text-anchor="end" font-size="12" fill="#6b6b6b">as now</text><text x="${W-6}" y="${Y(end(sc).balance+end(sc).invested)-8}" text-anchor="end" font-size="12" fill="#2e8b57">what if (incl. money put aside)</text>
-      ${[0,3,6,9,12].map(i=>`<text x="${X(i)}" y="${H-6}" font-size="11" text-anchor="middle" fill="#6b6b6b">+${i}m</text>`).join('')}</svg>`;
+      ${[0,3,6,9,12].map(i=>`<text x="${X(i)}" y="${H-6}" font-size="11" text-anchor="${i===12?'end':i===0?'start':'middle'}" fill="#6b6b6b">+${i}m</text>`).join('')}</svg>`;
   };
   wi.querySelectorAll('[data-w]').forEach(r=>r.oninput=go); go();
 }
@@ -2953,12 +3025,14 @@ function renderSavings(vt, cur){
     const W=600,H=180,P=36, ys=[...Array(31).keys()], vals=ys.map(y=>Savings.grow(total,y,ret,fee,inf)), max=Math.max(1,...vals.map(v=>Math.max(v.value,v.paidIn)));
     const X=y=>P+y/30*(W-P-10), Y=v=>H-24-v/max*(H-40);
     const line=k=>ys.map((y,j)=>`${j?'L':'M'}${X(y).toFixed(1)},${Y(vals[j][k]).toFixed(1)}`).join('');
+    // the two end labels keep at least one line apart, inside the chart
+    const ly=[Math.max(14,Y(vals[30].value)-8)]; ly[1]=Math.min(H-24,Math.max(Y(vals[30].paidIn)+16, ly[0]+16)); if(ly[1]-ly[0]<16) ly[0]=ly[1]-16;
     document.getElementById('savechart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Growth of possible savings over 30 years">
       <path d="${line('value')} L${X(30)},${Y(0)} L${X(0)},${Y(0)} Z" fill="#2e8b5722"/><path d="${line('value')}" fill="none" stroke="#2e8b57" stroke-width="3"/>
       <path d="${line('paidIn')}" fill="none" stroke="#8b1e3f" stroke-width="2" stroke-dasharray="6 5"/>
       ${[0,10,20,30].map(y=>`<text x="${X(y)}" y="${H-6}" font-size="12" text-anchor="middle" fill="#6b6b6b">${y}y</text>`).join('')}
-      <text x="${X(30)-4}" y="${Y(vals[30].value)-8}" font-size="12" text-anchor="end" fill="#2e8b57">could grow to</text>
-      <text x="${X(30)-4}" y="${Y(vals[30].paidIn)+16}" font-size="12" text-anchor="end" fill="#8b1e3f">you put in</text></svg>`;
+      <text x="${X(30)-4}" y="${ly[0]}" font-size="12" text-anchor="end" fill="#2e8b57">could grow to</text>
+      <text x="${X(30)-4}" y="${ly[1]}" font-size="12" text-anchor="end" fill="#8b1e3f">you put in</text></svg>`;
   };
   box.querySelectorAll('input[type=range]').forEach(r=>r.oninput=()=>{ CUTS[A.items[+r.dataset.i].id]=r.value/100; update(); });
   ['aRet','aFee','aInf'].forEach(id=>document.getElementById(id).oninput=update);
@@ -3037,24 +3111,45 @@ function downloadCSV(){
 // full transaction list with search and filters (its own tab)
 let TXLIMIT=200;
 function renderTx(vt, cur){
-  const fm=document.getElementById('fm'), fc=document.getElementById('fc');
+  const fm=document.getElementById('fm'), fc=document.getElementById('fcat');
   const months=[...new Set(vt.map(t=>t.month))].sort().reverse(), cats=[...new Set(vt.map(t=>t.cat))].sort();
   const keepM=fm.value, keepC=fc.value;
   fm.innerHTML='<option value="">All months</option>'+months.map(m=>`<option value="${m}">${new Date(m+'-01T00:00').toLocaleDateString('en-ZA',{month:'long',year:'numeric'})}</option>`).join(''); fm.value=months.includes(keepM)?keepM:'';
-  fc.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option>${c}</option>`).join(''); fc.value=cats.includes(keepC)?keepC:'';
+  fc.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); fc.value=cats.includes(keepC)?keepC:'';
   const q=document.getElementById('fq').value.trim().toLowerCase(), d=document.getElementById('fd').value, so=document.getElementById('fs').value;
   let l=vt.filter(t=>(!fm.value||t.month===fm.value)&&(!fc.value||t.cat===fc.value)&&(!d||(d==='in'?t.amt>0:t.amt<0||t.fee<0))&&(!q||t.desc.toLowerCase().includes(q)));
   const val=t=>t.amt+t.fee;
+  const byDate=(a,b)=>a.date<b.date?1:a.date>b.date?-1:0, cl=c=>catLabel(c).toLowerCase();
+  if(so==='cat'||so==='catz') l=[...l].sort((a,b)=>(cl(a.cat)<cl(b.cat)?-1:cl(a.cat)>cl(b.cat)?1:byDate(a,b))*(so==='catz'&&a.cat!==b.cat?-1:1)); else
   l=[...l].sort(so==='new'?(a,b)=>a.date<b.date?1:a.date>b.date?-1:0:so==='old'?(a,b)=>a.date<b.date?-1:a.date>b.date?1:0:so==='big'?(a,b)=>Math.abs(val(b))-Math.abs(val(a)):(a,b)=>Math.abs(val(a))-Math.abs(val(b)));
   const inn=l.filter(t=>t.amt>0).reduce((a,t)=>a+t.amt,0), out=l.reduce((a,t)=>a+(t.amt<0?t.amt:0)+t.fee,0), multi=new Set(vt.map(t=>t.acct)).size>1;
   document.getElementById('fsum').innerHTML=`<b>${l.length}</b> transaction${l.length===1?'':'s'} · in ${money(inn,cur)} · out ${money(out,cur)} · net <b>${money(inn+out,cur)}</b>`;
   const shown=l.slice(0,TXLIMIT);
   document.getElementById('ftable').innerHTML=`<table><tr><th>Date</th><th>Description</th>${multi?'<th>Account</th>':''}<th>Category</th><th class="n">Amount</th><th class="n">Balance</th></tr>`+
-    shown.map((t,i)=>`<tr><td style="white-space:nowrap">${t.date}</td><td>${esc(t.desc)}${t.bal==null&&(t.amt||t.fee)?' <span class="small">(pending)</span>':''}</td>${multi?`<td class="small">${esc(acctName(t.acct))}</td>`:''}
-      <td>${t.own?'<span class="small">Own accounts</span>':`<select data-t="${i}" aria-label="Category">${[...catList(),'Uncategorised'].map(c=>`<option${c===t.cat?' selected':''}>${esc(c)}</option>`).join('')}${NEWOPT}</select>`}</td>
-      <td class="n ${val(t)<0?'out':'in'}">${money(val(t),cur)}${t.fee?`<br><span class="small">incl. fee ${money(t.fee,cur)}</span>`:''}</td><td class="n small">${t.bal==null?'':money(t.bal,cur)}</td></tr>`).join('')+'</table>';
-  document.querySelectorAll('#ftable select').forEach(sel=>sel.onchange=()=>{ const t=shown[+sel.dataset.t]; if(sel.value==='__new') newCategory(t.amt>0?'in':'out', c=>c?ask(t.desc,c):reTx()); else ask(t.desc, sel.value); });
+    shown.map((t,i)=>`<tr><td class="c-date" style="white-space:nowrap">${t.date}</td><td class="c-desc">${esc(t.desc)}${t.bal==null&&(t.amt||t.fee)?' <span class="small">(pending)</span>':''}</td>${multi?`<td class="small c-acct">${esc(acctName(t.acct))}</td>`:''}
+      <td class="c-cat">${t.own?'<span class="small">Own accounts</span>':`<select data-t="${i}" aria-label="Category">${[...catList(),'Uncategorised'].map(c=>`<option value="${esc(c)}"${c===t.cat?' selected':''}>${esc(c)}</option>`).join('')}${NEWOPT}${EDITOPT}</select>`}</td>
+      <td class="n c-amt ${val(t)<0?'out':'in'}">${money(val(t),cur)}${t.fee?`<br><span class="small">incl. fee ${money(t.fee,cur)}</span>`:''}</td><td class="n small c-bal">${t.bal==null?'':'<span class="mob">Balance </span>'+money(t.bal,cur)}</td></tr>`).join('')+'</table>';
+  document.querySelectorAll('#ftable select').forEach(sel=>sel.onchange=()=>{ const t=shown[+sel.dataset.t]; if(sel.value==='__edit'){ sel.value=t.cat; return manageCats(); } if(sel.value==='__new') newCategory(t.amt>0?'in':'out', c=>c?ask(t.desc,c):reTx()); else ask(t.desc, sel.value); });
+  renderProblems(vt, cur);
   const more=document.getElementById('fmore'); more.classList.toggle('hidden', l.length<=TXLIMIT); more.textContent=`Show more (${l.length-TXLIMIT} hidden)`;
+}
+// clear list of what the app could not recognise, and of problems in the uploaded files
+function renderProblems(vt, cur){
+  const unk=vt.filter(t=>t.cat==='Uncategorised'&&(t.amt||t.fee)), parts=[];
+  if(unk.length){ const g={}; unk.forEach(t=>{ const k=t.desc||'(no description)'; (g[k]=g[k]||{n:0,v:0,d:t.date}).n++; g[k].v+=t.amt+t.fee; });
+    const rows=Object.entries(g).sort((a,b)=>Math.abs(b[1].v)-Math.abs(a[1].v));
+    parts.push(`<p><b>${unk.length} transaction${unk.length>1?'s':''} not recognised</b>, from ${rows.length} different description${rows.length>1?'s':''}. Give each one a category in the list below; the app remembers it for next time.</p>
+      <div class="tblwrap"><table><tr><th>Description</th><th class="n">Times</th><th class="n">Total</th></tr>${rows.slice(0,15).map(([d,x])=>`<tr><td style="overflow-wrap:break-word">${esc(d)}</td><td class="n">${x.n}</td><td class="n ${x.v<0?'out':'in'}">${money(x.v,cur)}</td></tr>`).join('')}</table></div>
+      ${rows.length>15?`<p class="small">and ${rows.length-15} more.</p>`:''}<button class="ghost" id="showunk" type="button">Show only these in the list</button>`); }
+  FILES.filter(f=>VIEW==='all'||f.acct===VIEW).forEach(f=>{ const sk=f.tx.skipped||[], bad=f.chk&&f.chk.hasBal&&!f.chk.ok?f.chk.bad:[];
+    if(!sk.length&&!bad.length) return;
+    let h=`<p style="margin-top:14px"><b>Problems in the file "${esc(f.name)}"</b></p>`;
+    if(bad.length) h+=`<p class="small">${bad.length} transaction${bad.length>1?'s don\'t':' doesn\'t'} add up to the bank's balance. A line may be missing from the file, or a column was read wrongly (<a href="#" data-chg2="${FILES.indexOf(f)}">check the columns</a>).</p><div class="tblwrap"><table><tr><th>Date</th><th>Description</th><th class="n">Amount</th><th class="n">Bank balance</th></tr>${bad.slice(0,10).map(t=>`<tr><td style="white-space:nowrap">${t.date}</td><td style="overflow-wrap:break-word">${esc(t.desc)}</td><td class="n">${money(t.amt+t.fee,cur)}</td><td class="n">${money(t.bal,cur)}</td></tr>`).join('')}</table></div>`;
+    if(sk.length) h+=`<p class="small">${sk.length} line${sk.length>1?'s':''} in the file could not be read as a transaction (no date the app understands). Usually these are totals or headings, but check them:</p><ul class="small" style="margin:4px 0 0 18px">${sk.slice(0,10).map(r=>`<li style="overflow-wrap:break-word">${esc(r.slice(0,140))}</li>`).join('')}</ul>${sk.length>10?`<p class="small">and ${sk.length-10} more.</p>`:''}`;
+    parts.push(h); });
+  document.getElementById('probs').innerHTML=parts.join(''); document.getElementById('probcard').classList.toggle('hidden', !parts.length);
+  const su=document.getElementById('showunk'); if(su) su.onclick=()=>{ document.getElementById('fcat').value='Uncategorised'; TXLIMIT=200; reTx(); document.getElementById('allcard').scrollIntoView({behavior:'smooth'}); };
+  document.querySelectorAll('[data-chg2]').forEach(a=>a.onclick=e=>{ e.preventDefault(); const f=FILES[+a.dataset.chg2]; showMapper(f.res, f.map); });
 }
 function clean(d){ return d.replace(/\(Card \d+\)/i,'').replace(/\s+\d{6,}.*/,'').replace(/\s{2,}/g,' ').trim(); }
 function month(m){
@@ -3262,7 +3357,7 @@ document.getElementById('addmore').onclick=()=>document.getElementById('drop').c
 document.querySelectorAll('#mainnav button').forEach(b=>b.onclick=()=>{ if(b.dataset.it) InvestUI.tab(b.dataset.it); showPanel(b.dataset.p); });
 document.getElementById('toplan').onclick=e=>{ e.preventDefault(); CALC.monthly=Math.round(STATE.savingsTotal||0); document.getElementById('calcin').innerHTML=''; renderPlan(STATE.tx.filter(t=>VIEW==='all'||t.acct===VIEW), viewCur()); document.getElementById('calcin').scrollIntoView({behavior:'smooth'}); };
 const reTx=()=>{ if(STATE) renderTx(STATE.tx.filter(t=>VIEW==='all'||t.acct===VIEW), viewCur()); };
-['fq','fm','fc','fd','fs'].forEach(id=>document.getElementById(id)[id==='fq'?'oninput':'onchange']=()=>{ TXLIMIT=200; reTx(); });
+['fq','fm','fcat','fd','fs'].forEach(id=>document.getElementById(id)[id==='fq'?'oninput':'onchange']=()=>{ TXLIMIT=200; reTx(); });
 document.getElementById('fmore').onclick=()=>{ TXLIMIT+=200; reTx(); };
 document.getElementById('dlcsv').onclick=downloadCSV;
 const THEMEKEY='et-theme';
