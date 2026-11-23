@@ -7,8 +7,11 @@
 <meta name="description" content="MoneyScope reads your bank statements and shows where your money goes: clear totals, charts and a monthly check-up. Your statements never leave your device.">
 <meta property="og:title" content="MoneyScope: see exactly where your money goes">
 <meta property="og:description" content="Private, clear money insights from your own bank statements. Your statements never leave your device.">
-<meta property="og:image" content="img/dashboard.png">
-<link rel="icon" href="app/icon-192.png">
+<meta property="og:image" content="https://moneyscope.co.za/img/og.jpg"><meta property="og:url" content="https://moneyscope.co.za/"><meta property="og:type" content="website"><meta property="og:site_name" content="MoneyScope">
+<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#14213a">
+<link rel="canonical" href="https://moneyscope.co.za/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MoneyScope","applicationCategory":"FinanceApplication","operatingSystem":"Web, iOS, Android, Windows, macOS","description":"Turns your bank statements into clear spending insights, charts and a monthly money check-up. Statements are processed privately on your own device.","url":"https://moneyscope.co.za/","offers":[{"@type":"Offer","name":"Monthly","price":"5.99","priceCurrency":"USD"},{"@type":"Offer","name":"Yearly","price":"59.90","priceCurrency":"USD"}]}</script>
+<link rel="icon" href="app/icon-192.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -90,6 +93,23 @@ footer{padding:44px 0 60px;font-size:14px;color:var(--muted)}
 footer .wrap{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 footer h4{font:500 12px "IBM Plex Mono";letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:12px}
 footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:var(--ink)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 14px;z-index:9}.skip:focus{left:8px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+.trust{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:22px;font-size:14px;color:var(--ink2)}.trust span::before{content:"✓";color:var(--green);margin-right:8px;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--ink)}.stats div{padding:26px 24px 6px 0;border-right:1px solid var(--rule);margin-right:24px}.stats div:last-child{border:0}
+.stats b{display:block;font:500 44px Newsreader,serif;color:var(--navy)}.stats p{color:var(--ink2);font-size:15px}
+.grid8{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule)}.grid8 div{padding:24px 22px 22px 0;border-bottom:1px solid var(--rule)}
+.grid8 h3{font-size:21px;margin-bottom:6px}.grid8 p{color:var(--ink2);font-size:15px}.grid8 i{font:500 12px "IBM Plex Mono";color:var(--brass);font-style:normal;display:block;margin-bottom:10px}
+table.cmp{width:100%;border-collapse:collapse;font-size:15px;background:var(--card)}table.cmp th,table.cmp td{padding:14px 16px;border-bottom:1px solid var(--rule);text-align:left}
+table.cmp th{font:500 12px "IBM Plex Mono";letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}table.cmp td:nth-child(2){font-weight:600;color:var(--green)}table.cmp td:nth-child(3){color:var(--muted)}
+.toggle{display:inline-flex;border:1px solid var(--ink);margin-bottom:22px}.toggle button{font:500 14px "IBM Plex Sans";background:transparent;border:0;padding:9px 18px;cursor:pointer;color:var(--ink)}.toggle button.on{background:var(--ink);color:var(--paper)}
+.save{font:500 11px "IBM Plex Mono";background:#e9dcc0;color:#6b4a0f;padding:3px 7px;margin-left:6px;letter-spacing:.04em}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);margin-top:28px;border-top:1px solid var(--rule)}.timeline div{padding:18px 18px 0 0}.timeline b{font:500 13px "IBM Plex Mono";color:var(--brass);display:block;margin-bottom:4px}.timeline p{font-size:15px;color:var(--ink2)}
+.promise{margin-top:18px;font-size:14px;color:var(--ink2)}.promise b{color:var(--ink)}
+.device{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:center}.device ol{padding-left:20px}.device li{padding:8px 0;color:var(--ink2)}
+@media (max-width:860px){.stats,.grid8,.timeline,.device{grid-template-columns:1fr 1fr}.stats div{border-right:0;margin-right:0}}
+@media (max-width:560px){.stats,.grid8,.timeline,.device{grid-template-columns:1fr}table.cmp th,table.cmp td{padding:10px 8px;font-size:14px}}
 @media (max-width:860px){
   nav.top a:not(.btn){display:none}
   .hero{padding-top:56px}.hero .grid,.sh,.feat,.plans,footer .wrap{grid-template-columns:1fr;gap:28px}
@@ -99,12 +119,13 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header><div class="wrap">
   <a class="brand" href="#"><i>M</i>MoneyScope</a>
   <nav class="top"><a href="#how">How it works</a><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="#pricing">Pricing</a><a class="btn" href="app/">Open the app</a></nav>
 </div></header>
 
-<main>
+<main id="main">
 <section class="hero"><div class="wrap">
   <div class="grid">
     <div>
@@ -112,22 +133,33 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
       <h1>See exactly where your money <em>goes.</em></h1>
       <p class="lead">Add the statement you download from your bank. MoneyScope turns it into clear totals, charts and a monthly money check-up, in under a minute.</p>
       <div class="cta"><a class="btn" href="app/" data-checkout="monthly">Start your free trial →</a><a class="btn ghost" href="app/#sample">See it with sample data</a></div>
-      <p class="fine">14 days free, then $5.99/month · Cancel before day 14 and you pay nothing · Your statements never leave your device</p>
+      <div class="trust"><span>Works with banks worldwide</span><span>No bank login, ever</span><span>Processed on your device</span><span>Cancel any time</span></div>
+      <p class="fine" style="margin-top:14px">10 days free, then $5.99/month · Cancel before day 10 and you pay nothing · Your statements never leave your device</p>
     </div>
     <div>
       <span class="eyebrow">An example month</span>
       <div class="ledger">
-        <div><span>Money in</span><span class="in">R 8 500,00</span></div>
-        <div><span>Groceries</span><span class="out">−R 2 402,77</span></div>
-        <div><span>Transport</span><span class="out">−R 1 038,00</span></div>
-        <div><span>Moved to savings</span><span>−R 1 000,00</span></div>
-        <div><span>Everything else</span><span class="out">−R 1 300,67</span></div>
-        <div class="total"><span>Left over</span><span>R 2 758,56</span></div>
+        <div><span>Money in</span><span class="in">$4,250.00</span></div>
+        <div><span>Groceries</span><span class="out">−$1,201.40</span></div>
+        <div><span>Transport</span><span class="out">−$519.00</span></div>
+        <div><span>Moved to savings</span><span>−$500.00</span></div>
+        <div><span>Everything else</span><span class="out">−$650.32</span></div>
+        <div class="total"><span>Left over</span><span>$1,379.28</span></div>
       </div>
     </div>
   </div>
-  <div class="shot"><img src="img/dashboard.png" alt="The MoneyScope dashboard: money in, money out, bank fees, what was left and a money check-up score of 90 out of 100" width="2720" height="1720"></div>
-  <p class="caption">The dashboard, shown with sample data. Every figure is checked against your bank's own running balance.</p>
+  <div class="shot"><img src="img/dashboard.webp" fetchpriority="high" alt="The MoneyScope dashboard: money in, money out, bank fees, what was left and a money check-up score of 90 out of 100" width="2720" height="1720"></div>
+  <p class="caption">The dashboard, shown with sample data. It works in your own currency. Every figure is checked against your bank's own running balance.</p>
+</div></section>
+
+<section id="proof" style="padding:64px 0"><div class="wrap">
+  <span class="eyebrow">Built to be right</span>
+  <div class="stats" style="margin-top:18px">
+    <div><b class="mono">2,013</b><p>different statement layouts tested, in many languages and formats</p></div>
+    <div><b class="mono">41,898</b><p>automatic checks run on every update, before it reaches you</p></div>
+    <div><b class="mono">Every</b><p>statement checked against your bank's own running balance, and you're told if anything doesn't add up</p></div>
+    <div><b class="mono">0</b><p>bank passwords asked for. MoneyScope never connects to your bank</p></div>
+  </div>
 </div></section>
 
 <section id="how"><div class="wrap">
@@ -141,15 +173,42 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
 
 <section id="features"><div class="wrap">
   <div class="sh"><div><span class="eyebrow">What you get</span><h2>Clarity, not another spreadsheet.</h2></div><p>MoneyScope reads every line for you, sorts it into categories and tells you, in plain words, what happened to your money.</p></div>
-  <div class="feat"><div class="txt"><span class="eyebrow">Your month in pictures</span><h3>Follow every rand from payday to the last cent.</h3><p>A money-flow chart shows where your income went, category by category, and what was left.</p>
+  <div class="feat"><div class="txt"><span class="eyebrow">Your month in pictures</span><h3>Follow every cent from payday to the last one.</h3><p>A money-flow chart shows where your income went, category by category, and what was left.</p>
     <ul><li>Spending sorted automatically, and it learns from your fixes</li><li>Spending calendar and category bubbles</li><li>Every month, or a whole year at a glance</li></ul></div>
-    <div class="img"><img src="img/pictures.png" alt="Money-flow chart from income to categories" loading="lazy"></div></div>
+    <div class="img"><img src="img/pictures.webp" alt="Money-flow chart from income to categories" loading="lazy"></div></div>
   <div class="feat flip"><div class="txt"><span class="eyebrow">Money check-up</span><h3>A score out of 100, and one next step.</h3><p>Four simple tests of your money habits, scored from your own statements: spending less than you earn, keeping wants in check, staying positive every month, and a safety buffer.</p>
     <ul><li>Explained in plain words, no jargon</li><li>One practical next step each month</li></ul></div>
-    <div class="img"><img src="img/checkup.png" alt="Money check-up showing a score of 90 out of 100 with four parts" loading="lazy"></div></div>
+    <div class="img"><img src="img/checkup.webp" alt="Money check-up showing a score of 90 out of 100 with four parts" loading="lazy"></div></div>
   <div class="feat"><div class="txt"><span class="eyebrow">Insights & savings</span><h3>Ask your money a question.</h3><p>"What's the one thing I can cut back on?" "Which payments repeat?" Pick a question and get an answer from your own data. Compare months or whole years.</p>
     <ul><li>Possible savings, worked out from your real spending</li><li>What those savings could grow to over time</li><li>Download a summary for your records</li></ul></div>
-    <div class="img"><img src="img/insights.png" alt="Comparisons and insights page" loading="lazy"></div></div>
+    <div class="img"><img src="img/insights.webp" alt="Comparisons and insights page" loading="lazy"></div></div>
+</div></section>
+
+<section id="all"><div class="wrap">
+  <div class="sh"><div><span class="eyebrow">Everything included</span><h2>Small app. Serious toolkit.</h2></div><p>Every subscription includes every feature. No upsells, no premium tiers hiding the useful parts.</p></div>
+  <div class="grid8">
+    <div><i>01</i><h3>Smart categories</h3><p>Every payment sorted for you, and it learns from every correction you make.</p></div>
+    <div><i>02</i><h3>Cash flow</h3><p>Every month side by side: what came in, what went out, what was left.</p></div>
+    <div><i>03</i><h3>Ask your data</h3><p>"What can I cut back on?" "Which payments repeat?" Clear answers from your own numbers.</p></div>
+    <div><i>04</i><h3>Month and year compare</h3><p>This month against last month, or this year against last year.</p></div>
+    <div><i>05</i><h3>Money check-up</h3><p>A score out of 100 and one practical next step, every month.</p></div>
+    <div><i>06</i><h3>Savings & growth</h3><p>Possible savings from your real spending, and what they could grow to.</p></div>
+    <div><i>07</i><h3>Any bank, any format</h3><p>CSV, Excel, PDF, OFX/QIF or a screenshot. Several accounts at once.</p></div>
+    <div><i>08</i><h3>Export & dark mode</h3><p>Download a summary for your records. Easy on the eyes at night.</p></div>
+  </div>
+</div></section>
+
+<section id="compare"><div class="wrap">
+  <div class="sh"><div><span class="eyebrow">Why MoneyScope</span><h2>The private way to see your money.</h2></div><p>Most budgeting apps want your banking login so they can pull your transactions onto their servers. MoneyScope gives you the same clarity without that.</p></div>
+  <div style="overflow-x:auto"><table class="cmp">
+    <tr><th></th><th>MoneyScope</th><th>Typical budgeting apps</th></tr>
+    <tr><td>Asks for your bank login</td><td>Never</td><td>Usually</td></tr>
+    <tr><td>Where your statements are processed</td><td>On your device</td><td>On the company's servers</td></tr>
+    <tr><td>Works with</td><td>Any bank, any country</td><td>Supported banks only</td></tr>
+    <tr><td>Works offline</td><td>Yes</td><td>Rarely</td></tr>
+    <tr><td>Setup</td><td>About a minute</td><td>Account linking and permissions</td></tr>
+    <tr><td>Price</td><td>$5.99/month, all features</td><td>Often more, or features behind tiers</td></tr>
+  </table></div>
 </div></section>
 
 <section id="privacy" class="dark"><div class="wrap">
@@ -163,21 +222,39 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
 
 <section id="pricing"><div class="wrap">
   <div class="sh"><div><span class="eyebrow">Pricing</span><h2>Simple. Less than one takeaway a month.</h2></div><p>Try everything free. If MoneyScope helps you find even one forgotten subscription, it pays for itself.</p></div>
+  <div class="toggle" role="group" aria-label="Billing period"><button class="on" data-bill="monthly">Monthly</button><button data-bill="yearly">Yearly <span class="save">2 MONTHS FREE</span></button></div>
   <div class="plans">
-    <div class="plan"><h3>Free trial</h3><div class="price mono">$0 <small>for <span data-trial>14</span> days</small></div><p>Every feature, with your own statements. Cancel any time before day 14 and you pay nothing.</p>
+    <div class="plan"><h3>Free trial</h3><div class="price mono">$0 <small>for <span data-trial>10</span> days</small></div><p>Every feature, with your own statements. Cancel any time before day 10 and you pay nothing.</p>
       <ul><li>All banks and statement types</li><li>Dashboard, charts and check-up</li><li>Insights and savings ideas</li></ul><a class="btn ghost" href="app/#sample">Try it with sample data</a></div>
-    <div class="plan best"><h3>MoneyScope</h3><div class="price mono">$<span data-price>5.99</span> <small>per month</small></div><p>Or $<span data-year>59.90</span> a year (two months free). Renews automatically; cancel any time.</p>
-      <ul><li>Everything in the trial, without limits</li><li>Unlimited statements and accounts</li><li>Whole-year views and comparisons</li><li>New features as they launch</li></ul><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="app/" data-checkout="monthly">Start free: monthly →</a><a class="btn ghost" href="app/" data-checkout="yearly">Start free: yearly</a></div></div>
+    <div class="plan best"><h3>MoneyScope</h3><div class="price mono" id="pv">$5.99 <small>per month</small></div><p id="pn">Billed monthly after your free trial. Renews automatically; cancel any time.</p>
+      <ul><li>Everything in the trial, without limits</li><li>Unlimited statements and accounts</li><li>Whole-year views and comparisons</li><li>New features as they launch</li></ul><a class="btn" href="app/" data-checkout="monthly" id="pbtn">Start your 10-day free trial →</a></div>
   </div>
+  <div class="timeline">
+    <div><b>TODAY</b><p>Start free. Add your card; nothing is charged.</p></div>
+    <div><b>DAYS 1 – 10</b><p>Use everything. Cancel any time in two clicks and pay nothing.</p></div>
+    <div><b>DAY 11</b><p>Your plan starts: $5.99 a month, or $59.90 a year.</p></div>
+  </div>
+  <p class="promise"><b>14-day refund promise:</b> not happy after a payment? Ask within 14 days for a full refund. <a href="refunds.html">Refund policy</a></p>
+</div>
+</div></section>
+
+<section id="device"><div class="wrap device">
+  <div><span class="eyebrow">On your phone</span><h2 style="font-size:clamp(32px,4vw,48px);margin:12px 0 16px">Install it like an app. No app store needed.</h2><p style="color:var(--ink2)">MoneyScope runs in your browser and installs to your home screen in seconds. It opens instantly and even works offline.</p></div>
+  <ol><li><b>iPhone:</b> open moneyscope.co.za/app in Safari, tap Share, then "Add to Home Screen".</li><li><b>Android:</b> open it in Chrome, tap the menu (⋮), then "Install app".</li><li><b>Computer:</b> it works in any modern browser. Chrome and Edge can install it too.</li></ol>
 </div></section>
 
 <section id="faq"><div class="wrap">
   <div class="sh"><div><span class="eyebrow">Questions</span><h2>Good to know.</h2></div><p></p></div>
-  <details><summary>Which banks does it work with?</summary><p>Any bank that lets you download a statement: Capitec, FNB, Standard Bank, Absa, Nedbank, Discovery, TymeBank, African Bank and others. MoneyScope recognises the layout itself and, if it's ever unsure, asks you once.</p></details>
+  <details><summary>Which banks does it work with?</summary><p>Almost any bank in the world that lets you download a statement: CSV, Excel, PDF, OFX/QIF, or a clear screenshot. MoneyScope recognises the layout, language and currency itself and, if it's ever unsure, asks you once.</p></details>
   <details><summary>Is my information safe?</summary><p>Your statements are read inside your own browser and are not uploaded to us. We never ask for a bank login. You can delete anything you've chosen to remember, at any time.</p></details>
   <details><summary>How accurate is it?</summary><p>Every statement is checked against your bank's own running balance, and you're told if anything doesn't add up. You can correct any category, and MoneyScope remembers it.</p></details>
   <details><summary>Does it work on my phone?</summary><p>Yes. Open it in your phone's browser and add it to your home screen. It works like an app, even offline.</p></details>
-  <details><summary>Is this financial advice?</summary><p>No. MoneyScope shows facts from your own statements and general guidance about money habits. It is not financial advice as defined in the FAIS Act. Speak to a registered financial adviser for advice about your situation.</p></details>
+  <details><summary>How do I cancel?</summary><p>Any time, in two clicks, from the link in your receipt email or the "Manage or cancel" link in the app. Cancel during the free trial and you pay nothing. Cancel later and you keep access until the end of the period you paid for.</p></details>
+  <details><summary>Which currency am I charged in?</summary><p>Plans are priced in US dollars: $5.99 a month or $59.90 a year. Your bank converts it to your own currency; some banks add a small foreign-transaction fee. MoneyScope itself reads statements in any currency.</p></details>
+  <details><summary>Does it work in my country?</summary><p>Yes. MoneyScope reads statements from banks around the world, in many languages, date formats and number styles. If a layout is new to it, it asks you once which column is which, and remembers.</p></details>
+  <details><summary>Do I need to install anything?</summary><p>No. It runs in your browser on any phone, tablet or computer. You can add it to your home screen if you'd like it to feel like an app.</p></details>
+  <details><summary>Can I delete my data?</summary><p>Your statements live only on your device. Untick "Remember my statements" or clear your browser data and they're gone. We never had a copy.</p></details>
+  <details><summary>Is this financial advice?</summary><p>No. MoneyScope shows facts from your own statements and general guidance about money habits. It is not financial advice. For advice about your own situation, speak to a licensed financial adviser where you live.</p></details>
 </div></section>
 
 <section class="final"><div class="wrap">
@@ -196,12 +273,22 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
 <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 <script>
 // Paddle checkout. The token below is Paddle's public "client-side token": made to sit in website code; it can only open checkout.
-const PADDLE = { token: 'live_f08c5aafed268fd6dfc2c550009', monthly: 'pri_01m83aekx6bkgc53z0zpfk7tqq', yearly: 'pri_01m83afvvdm25g2kan7afqc72q' };
-try { Paddle.Initialize({ token: PADDLE.token }); } catch (e) {}
+const LIVE = { token: 'live_f08c5aafed268fd6dfc2c550009', monthly: 'pri_01m83aekx6bkgc53z0zpfk7tqq', yearly: 'pri_01m83afvvdm25g2kan7afqc72q' };
+// test mode (Paddle sandbox, no real money): on this computer, or with ?paddle=test in the address
+const TEST = { token: 'test_03155ad62da6992c88d1c4ba2ff', monthly: 'pri_01m83cjs6k0g0rc946tska6dmf', yearly: 'pri_01m83ckrq1gmptqjdxep8h921m' };
+const testMode = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /paddle=test/.test(location.search);
+const PADDLE = testMode ? TEST : LIVE;
+try { if (testMode) Paddle.Environment.set('sandbox'); Paddle.Initialize({ token: PADDLE.token }); } catch (e) {}
 function checkout(plan) {
-  try { Paddle.Checkout.open({ items: [{ priceId: PADDLE[plan], quantity: 1 }], settings: { displayMode: 'overlay', theme: 'light', successUrl: location.origin + '/app/?welcome=1' } }); }
+  try { Paddle.Checkout.open({ items: [{ priceId: PADDLE[plan], quantity: 1 }], settings: { displayMode: 'overlay', theme: 'light', successUrl: new URL('app/?welcome=1', location.href).href } }); }
   catch (e) { location.href = 'app/'; }       // if checkout can't open, the app still works
 }
+document.querySelectorAll('[data-bill]').forEach(b => b.addEventListener('click', () => {
+  const y = b.dataset.bill === 'yearly'; document.querySelectorAll('[data-bill]').forEach(x => x.classList.toggle('on', x === b));
+  document.getElementById('pv').innerHTML = y ? '$59.90 <small>per year</small>' : '$5.99 <small>per month</small>';
+  document.getElementById('pn').textContent = y ? 'That is $4.99 a month, billed yearly after your free trial. Renews automatically; cancel any time.' : 'Billed monthly after your free trial. Renews automatically; cancel any time.';
+  document.getElementById('pbtn').dataset.checkout = y ? 'yearly' : 'monthly';
+}));
 document.querySelectorAll('[data-checkout]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); checkout(a.dataset.checkout); }));
 </script>
 </body>

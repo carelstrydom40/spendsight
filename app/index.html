@@ -1965,7 +1965,7 @@ const Plans = (() => {
     premium: { name: 'MoneyScope + Investments', price: 'later', features: ['expenses', 'budgets', 'invest'] }   // paused (docs/INVESTMENTS-STATUS.md)
   };
   const FEATURE_NAME = { expenses: 'Spending insights', budgets: 'Budgets & savings plans', invest: 'Investment tracker' };
-  const TRIAL_DAYS = 14;
+  const TRIAL_DAYS = 10;
   const TRIAL_ENFORCED = false;     // false until payments work: nobody is locked out before they can pay. true = trial ends after TRIAL_DAYS.
   const SUBSCRIBE_URL = '';         // the payment page (set when the payment provider is connected)
   const PUBLIC_KEY = {"kty": "EC", "crv": "P-256", "x": "dVsgx3pad4YylCyaRsQXyQM8Bw3WGhl_oqe75kKvz44", "y": "wI2kME-CcPi5JnlRdfz0ym-UihNt2BVOxzCSqR_NmmY", "ext": true};
@@ -3263,7 +3263,7 @@ if(!SHOW_INVEST){ document.body.classList.add('noinvest'); const t=document.quer
   const st=document.querySelector('#steps li span'); if(st) st.textContent="a statement from your bank's website or app (or take a screenshot of it)";
   PINTRO.pFiles='Add your bank statements, and manage the ones you have added.'; }
 if(location.hash==='#sample'&&!FILES.length) setTimeout(()=>document.getElementById('sample').click(),300);   // the website's "see it with sample data" link
-if(/welcome=1/.test(location.search)) setTimeout(()=>{ const m=document.getElementById('upmsg'); if(m){ m.className='status ok'; m.textContent='Welcome to MoneyScope! Your 14-day free trial has started. Add a bank statement below to begin. Your activation key arrives by email.'; m.classList.remove('hidden'); } },400);
+if(/welcome=1/.test(location.search)) setTimeout(()=>{ const m=document.getElementById('upmsg'); if(m){ m.className='status ok'; m.textContent='Welcome to MoneyScope! Your 10-day free trial has started. Add a bank statement below to begin. Your activation key arrives by email.'; m.classList.remove('hidden'); } },400);
 </script>
 </body>
 </html>
