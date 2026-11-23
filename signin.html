@@ -1,0 +1,38 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign in · MoneyScope</title><link rel="icon" href="app/icon-192.png"><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f6f3ec;color:#14213a;font:400 17px/1.6 "IBM Plex Sans",system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+a{color:#1f3a5f}.back{display:inline-block;margin:24px;text-decoration:none;font:600 18px Newsreader,serif;color:#14213a}
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 80px}
+.card{background:#fff;border:1px solid #e4ddcf;border-radius:18px;box-shadow:0 10px 30px rgba(20,33,58,.08);padding:36px 32px;max-width:420px;width:100%;box-sizing:border-box}
+h1{font:500 34px/1.15 Newsreader,Georgia,serif;margin:0 0 8px}p.sub{color:#5b6476;margin:0 0 24px;font-size:15px}
+label{display:block;font-weight:500;font-size:14px;margin-bottom:6px}
+input{width:100%;box-sizing:border-box;font:inherit;padding:13px 14px;border:1px solid #cfc7b6;border-radius:10px;background:#fffdf8}
+input:focus{outline:2px solid #1f3a5f;border-color:#1f3a5f}#code{letter-spacing:8px;font-size:24px;text-align:center}
+button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:10px;background:#14213a;color:#fff;font:500 16px "IBM Plex Sans",sans-serif;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}.msg{margin-top:14px;font-size:14px;min-height:1.4em}.err{color:#b3261e}.ok{color:#1d7a46}
+.hidden{display:none}.fine{margin-top:22px;font-size:13px;color:#6b7280;border-top:1px solid #eee6d6;padding-top:16px}
+.link{background:none;color:#1f3a5f;text-decoration:underline;padding:0;margin-top:12px;width:auto;font-size:14px}
+</style></head>
+<body><a class="back" href="./">← MoneyScope</a><main><div class="card">
+<section id="s1"><h1>Sign in</h1><p class="sub">Use MoneyScope on a new phone or computer. Enter the email you subscribed with and we'll send you a 6-digit code.</p>
+<form id="f1"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"><button id="b1">Send my code</button></form></section>
+<section id="s2" class="hidden"><h1>Check your email</h1><p class="sub">If <b id="shown"></b> has a MoneyScope subscription, a code is on its way from moneyscope.help@gmail.com. It works for 10 minutes. Check spam if you can't see it.</p>
+<form id="f2"><label for="code">6-digit code</label><input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="••••••"><button id="b2">Sign in</button></form>
+<button class="link" id="again" type="button">Use a different email</button></section>
+<div class="msg" id="msg" role="status"></div>
+<p class="fine">Your bank statements never leave your device, so a new device starts empty: add your statements there again. No subscription yet? <a href="./#pricing">Start your free trial</a>. Help: <a href="mailto:moneyscope.help@gmail.com">moneyscope.help@gmail.com</a></p>
+</div></main>
+<script>
+const API='https://moneyscope-keys.carelstrydom40.workers.dev', $=id=>document.getElementById(id); let challenge=null;
+const say=(t,c)=>{ $('msg').textContent=t; $('msg').className='msg '+(c||''); };
+async function post(route,body){ const r=await fetch(API+route,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Something went wrong. Please try again.'); return j; }
+$('f1').onsubmit=async e=>{ e.preventDefault(); const email=$('email').value.trim(); $('b1').disabled=true; say('Sending…');
+  try{ challenge=(await post('/signin',{email})).challenge; $('shown').textContent=email; $('s1').classList.add('hidden'); $('s2').classList.remove('hidden'); say(''); $('code').focus(); }
+  catch(x){ say(x.message,'err'); } $('b1').disabled=false; };
+$('f2').onsubmit=async e=>{ e.preventDefault(); $('b2').disabled=true; say('Checking…');
+  try{ const j=await post('/verify',{challenge,code:$('code').value.trim()}); try{ localStorage.setItem('ss-licence',j.key); localStorage.setItem('ms-sub',j.sub); }catch(x){}
+    say('Signed in. Opening MoneyScope…','ok'); setTimeout(()=>location.href='app/',600); }
+  catch(x){ say(x.message,'err'); $('b2').disabled=false; } };
+$('again').onclick=()=>{ $('s2').classList.add('hidden'); $('s1').classList.remove('hidden'); say(''); };
+</script></body></html>
