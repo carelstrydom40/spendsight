@@ -2019,10 +2019,15 @@ const Plans = (() => {
     if (state.why === 'licence' && exp && exp > soon) return;
     try { const j = await call('/refresh', { sub }); await enter(j.key); } catch (e) {}
   }
+  async function restore(sub) {                      // another device: the link from "Use on another device"
+    if (!KEY_SERVICE || !/^sub_[a-z0-9]+$/.test(sub || '')) return false;
+    try { const j = await call('/refresh', { sub }); if (!await enter(j.key)) return false; try { localStorage.setItem(SKEY, sub); } catch (e) {} return true; } catch (e) { return false; }
+  }
+  function deviceLink() { let sub = null; try { sub = localStorage.getItem(SKEY); } catch (e) {} return sub ? 'https://moneyscope.co.za/app/?sub=' + sub : null; }
   async function portal() { let sub = null; try { sub = localStorage.getItem(SKEY); } catch (e) {} if (!KEY_SERVICE || !sub) return null; try { return (await call('/portal', { sub })).url; } catch (e) { return null; } }
   const can = f => state.why === 'licence' ? PLANS[state.plan].features.includes(f) : f === 'invest' ? false : (!enforced || state.why === 'trial');
   const needed = f => Object.entries(PLANS).find(([, p]) => p.features.includes(f))[0];
-  return { PLANS, FEATURE_NAME, TRIAL_DAYS, SUBSCRIBE_URL, load, enter, can, needed, activate, refresh, portal, get keyService() { return KEY_SERVICE; }, get enforced() { return enforced; }, get state() { return state; },
+  return { PLANS, FEATURE_NAME, TRIAL_DAYS, SUBSCRIBE_URL, load, enter, can, needed, activate, refresh, restore, deviceLink, portal, get keyService() { return KEY_SERVICE; }, get enforced() { return enforced; }, get state() { return state; },
     _test: { enforce: v => { enforced = v; }, setStart: d => { try { localStorage.setItem(TKEY, d); } catch (e) {} } } };
 })();
 if (typeof module !== 'undefined') module.exports = Plans;
@@ -2978,7 +2983,7 @@ function showPanel(p){
     lk.classList.toggle('hidden',!locked);
     if(locked){ const n=Plans.PLANS.pro, ended=Plans.state.why==='expired';
       lk.innerHTML=`<h3>${ended?'Your free trial has ended':Plans.FEATURE_NAME[NEED[p]]}</h3><p>${ended?`Thanks for trying MoneyScope. Subscribe to keep seeing where your money goes: <b>${n.price}</b>, or <b>${n.year}</b> (two months free). Your statements are still safe on this device.`:`Part of the <b>${n.name}</b> plan (${n.price}).`}</p>
-        ${Plans.SUBSCRIBE_URL?`<p><a class="btn" href="${Plans.SUBSCRIBE_URL}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;background:var(--maroon);color:var(--heroink);border-radius:6px;text-decoration:none">Subscribe</a></p>`:''}
+        ${Plans.SUBSCRIBE_URL?`<p><a class="btn" href="${Plans.SUBSCRIBE_URL}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;background:var(--maroon);color:var(--heroink);border-radius:6px;text-decoration:none">Subscribe</a> &nbsp; <a href="https://moneyscope.co.za/signin.html">Already subscribed? Sign in</a></p>`:''}
         <details style="margin-top:8px"><summary class="small" style="cursor:pointer">I already have a key</summary><div class="row" style="margin-top:8px"><input type="text" id="lk2" placeholder="Paste your key" style="flex:1;min-width:220px"><button id="lk2go">Unlock</button></div><p class="small" id="lk2msg"></p></details>`;
       document.getElementById('lk2go').onclick=async()=>{ if(await Plans.enter(document.getElementById('lk2').value)){ planNote(); showPanel(p); } else document.getElementById('lk2msg').textContent="That key isn't valid. Check it was copied in full."; };
       document.getElementById(p).classList.add('locked'); } else if(NEED[p]) document.getElementById(p).classList.remove('locked'); }
@@ -3272,13 +3277,16 @@ om.onchange=()=>{ Online.setMode(om.value); ominfo(); if(STATE){ const keep=docu
 // trial / subscription line in the sidebar. The cancel link is small but always visible (consumer law requires easy cancelling)
 const MANAGE_URL='#manage';   // opens Paddle's manage-or-cancel page through the key service
 function planNote(){ const st=Plans.state, el=document.getElementById('plannote'); if(!el) return;
-  if(st.why==='licence') el.innerHTML=`MoneyScope subscription active.${MANAGE_URL?` <a href="${MANAGE_URL}" target="_blank" rel="noopener">Manage or cancel</a>`:''}`;
+  if(st.why==='licence') el.innerHTML=`MoneyScope subscription active.${MANAGE_URL?` <a href="${MANAGE_URL}" target="_blank" rel="noopener">Manage or cancel</a>`:''}${Plans.deviceLink()?' · <a href="#device">Use on another device</a>':''}`;
   else if(!Plans.enforced) el.textContent='';
-  else if(st.why==='trial') el.innerHTML=`Free trial: <b>${st.daysLeft} day${st.daysLeft===1?'':'s'} left</b>.${Plans.SUBSCRIBE_URL?` <a href="${Plans.SUBSCRIBE_URL}" target="_blank" rel="noopener">Subscribe</a>`:''}`;
-  else el.innerHTML='Free trial ended.'; }
-document.addEventListener('click',async e=>{ const a=e.target.closest('a[href="#manage"]'); if(!a) return; e.preventDefault(); const w=window.open('','_blank'); const u=await Plans.portal(); if(u&&w) w.location=u; else { w&&w.close(); alert('Use the "Manage subscription" link in your Paddle receipt email, or email hello@moneyscope.co.za.'); } });
+  else if(st.why==='trial') el.innerHTML=`Free trial: <b>${st.daysLeft} day${st.daysLeft===1?'':'s'} left</b>.${Plans.SUBSCRIBE_URL?` <a href="${Plans.SUBSCRIBE_URL}" target="_blank" rel="noopener">Subscribe</a>`:''} <a href="https://moneyscope.co.za/signin.html">Already subscribed? Sign in</a>`;
+  else el.innerHTML='Free trial ended.'+' <a href="https://moneyscope.co.za/signin.html">Already subscribed? Sign in</a>'; }
+document.addEventListener('click',async e=>{ const d=e.target.closest('a[href="#device"]'); if(!d) return; e.preventDefault(); const u=Plans.deviceLink(); try{ await navigator.clipboard.writeText(u); }catch(x){} prompt('Open this link on your other phone or computer to use your subscription there (it is copied). Keep it private: it works like a password.',u); });
+document.addEventListener('click',async e=>{ const a=e.target.closest('a[href="#manage"]'); if(!a) return; e.preventDefault(); const w=window.open('','_blank'); const u=await Plans.portal(); if(u&&w) w.location=u; else { w&&w.close(); alert('Use the "Manage subscription" link in your Paddle receipt email, or email moneyscope.help@gmail.com.'); } });
 Plans.load().then(async()=>{ const txn=(location.search.match(/[?&]txn=(txn_[a-z0-9]+)/)||[])[1];
-  if(txn){ upMsg&&upMsg('Activating your subscription…'); const ok=await Plans.activate(txn); upMsg(ok?'Welcome to MoneyScope! Your subscription is active and your 10-day free trial has started. Add a bank statement below to begin.':'Your payment went through. Activation is taking longer than usual: reload this page in a minute, or email hello@moneyscope.co.za.', ok?'ok':'warn'); history.replaceState(null,'',location.pathname); }
+  const sub=(location.search.match(/[?&]sub=(sub_[a-z0-9]+)/)||[])[1];
+  if(sub){ upMsg&&upMsg('Connecting your subscription…'); const ok=await Plans.restore(sub); history.replaceState(null,'',location.pathname); upMsg&&upMsg(ok?'Your subscription is active on this device too.':'That link did not work: the subscription may have ended. Open the link again or contact support.'); }
+  else if(txn){ upMsg&&upMsg('Activating your subscription…'); const ok=await Plans.activate(txn); upMsg(ok?'Welcome to MoneyScope! Your subscription is active and your 10-day free trial has started. Add a bank statement below to begin.':'Your payment went through. Activation is taking longer than usual: reload this page in a minute, or email moneyscope.help@gmail.com.', ok?'ok':'warn'); history.replaceState(null,'',location.pathname); }
   else await Plans.refresh();
   planNote(); if(PANEL==='pInv') InvestUI.render(); if(Plans.enforced&&Plans.state.why==='expired') showPanel(PANEL); });
 document.getElementById('goSpend').onclick=()=>{ document.querySelector('#upkind [data-k=bank]').click(); document.getElementById('drop').scrollIntoView({behavior:'smooth',block:'center'}); };
