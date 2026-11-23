@@ -3263,6 +3263,7 @@ if(!SHOW_INVEST){ document.body.classList.add('noinvest'); const t=document.quer
   const st=document.querySelector('#steps li span'); if(st) st.textContent="a statement from your bank's website or app (or take a screenshot of it)";
   PINTRO.pFiles='Add your bank statements, and manage the ones you have added.'; }
 if(location.hash==='#sample'&&!FILES.length) setTimeout(()=>document.getElementById('sample').click(),300);   // the website's "see it with sample data" link
+if(/welcome=1/.test(location.search)) setTimeout(()=>{ const m=document.getElementById('upmsg'); if(m){ m.className='status ok'; m.textContent='Welcome to MoneyScope! Your 14-day free trial has started. Add a bank statement below to begin. Your activation key arrives by email.'; m.classList.remove('hidden'); } },400);
 </script>
 </body>
 </html>

@@ -111,7 +111,7 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
       <span class="eyebrow">Clarity for your money</span>
       <h1>See exactly where your money <em>goes.</em></h1>
       <p class="lead">Add the statement you download from your bank. MoneyScope turns it into clear totals, charts and a monthly money check-up, in under a minute.</p>
-      <div class="cta"><a class="btn" href="app/">Start your free trial →</a><a class="btn ghost" href="app/#sample">See it with sample data</a></div>
+      <div class="cta"><a class="btn" href="app/" data-checkout="monthly">Start your free trial →</a><a class="btn ghost" href="app/#sample">See it with sample data</a></div>
       <p class="fine">14 days free, then $5.99/month · Cancel before day 14 and you pay nothing · Your statements never leave your device</p>
     </div>
     <div>
@@ -165,9 +165,9 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
   <div class="sh"><div><span class="eyebrow">Pricing</span><h2>Simple. Less than one takeaway a month.</h2></div><p>Try everything free. If MoneyScope helps you find even one forgotten subscription, it pays for itself.</p></div>
   <div class="plans">
     <div class="plan"><h3>Free trial</h3><div class="price mono">$0 <small>for <span data-trial>14</span> days</small></div><p>Every feature, with your own statements. Cancel any time before day 14 and you pay nothing.</p>
-      <ul><li>All banks and statement types</li><li>Dashboard, charts and check-up</li><li>Insights and savings ideas</li></ul><a class="btn ghost" href="app/">Start free</a></div>
+      <ul><li>All banks and statement types</li><li>Dashboard, charts and check-up</li><li>Insights and savings ideas</li></ul><a class="btn ghost" href="app/#sample">Try it with sample data</a></div>
     <div class="plan best"><h3>MoneyScope</h3><div class="price mono">$<span data-price>5.99</span> <small>per month</small></div><p>Or $<span data-year>59.90</span> a year (two months free). Renews automatically; cancel any time.</p>
-      <ul><li>Everything in the trial, without limits</li><li>Unlimited statements and accounts</li><li>Whole-year views and comparisons</li><li>New features as they launch</li></ul><a class="btn" href="app/">Start your free trial →</a></div>
+      <ul><li>Everything in the trial, without limits</li><li>Unlimited statements and accounts</li><li>Whole-year views and comparisons</li><li>New features as they launch</li></ul><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="app/" data-checkout="monthly">Start free: monthly →</a><a class="btn ghost" href="app/" data-checkout="yearly">Start free: yearly</a></div></div>
   </div>
 </div></section>
 
@@ -183,15 +183,26 @@ footer a{display:block;text-decoration:none;margin:6px 0}footer a:hover{color:va
 <section class="final"><div class="wrap">
   <span class="eyebrow">Ready when you are</span>
   <h2>Know where your money goes,<br>starting this month.</h2>
-  <a class="btn" href="app/">Start your free trial →</a>
+  <a class="btn" href="app/" data-checkout="monthly">Start your free trial →</a>
 </div></section>
 </main>
 
 <footer><div class="wrap">
   <div><a class="brand" href="#"><i>M</i>MoneyScope</a><p style="margin-top:12px;max-width:380px">Clear, private money insights from your own bank statements. Made in South Africa.</p><p style="margin-top:12px">Not financial advice. © <span id="yr"></span> MoneyScope.</p></div>
   <div><h4>Product</h4><a href="app/">Open the app</a><a href="#how">How it works</a><a href="#pricing">Pricing</a></div>
-  <div><h4>Company</h4><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms of use</a><a href="mailto:hello@moneyscope.co.za">hello@moneyscope.co.za</a></div>
+  <div><h4>Company</h4><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms of use</a><a href="refunds.html">Refund policy</a><a href="mailto:hello@moneyscope.co.za">hello@moneyscope.co.za</a></div>
 </div></footer>
 <script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+// Paddle checkout. The token below is Paddle's public "client-side token": made to sit in website code; it can only open checkout.
+const PADDLE = { token: 'live_f08c5aafed268fd6dfc2c550009', monthly: 'pri_01m83aekx6bkgc53z0zpfk7tqq', yearly: 'pri_01m83afvvdm25g2kan7afqc72q' };
+try { Paddle.Initialize({ token: PADDLE.token }); } catch (e) {}
+function checkout(plan) {
+  try { Paddle.Checkout.open({ items: [{ priceId: PADDLE[plan], quantity: 1 }], settings: { displayMode: 'overlay', theme: 'light', successUrl: location.origin + '/app/?welcome=1' } }); }
+  catch (e) { location.href = 'app/'; }       // if checkout can't open, the app still works
+}
+document.querySelectorAll('[data-checkout]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); checkout(a.dataset.checkout); }));
+</script>
 </body>
 </html>
