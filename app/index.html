@@ -575,7 +575,7 @@ const Engine = (() => {
     const dateCol = dates[0];
     const ord = dateOrder(dateCol.vals, hintMDY);
     const taken = new Set(dates.map(d => d.i));
-    const numeric = P.filter(c => !taken.has(c.i) && c.vals.length && c.numFrac > .8 && c.ints < .5 && c.avgLen < 20);
+    const numeric = P.filter(c => !taken.has(c.i) && c.vals.length && (c.numFrac > .8 || (c.vals.length >= 3 && c.vals.length * (1 - c.numFrac) < 1.5)) && c.ints < .5 && c.avgLen < 20 && !/foreign|original|exchange rate|\bfx\b/i.test(headers[c.i] || '') && (c.vals.length < 3 || new Set(c.vals).size > 1)); // the same value on every line (card digits, Nr = 1) is not money
     const markers = P.filter(c => !taken.has(c.i) && c.markerFrac > .9);
     // any other column with exactly two short repeating values may be a direction marker in an unknown language
     const twoVal = P.filter(c => !taken.has(c.i) && c.markerFrac <= .9 && c.fill > .9 && c.numFrac < .2 && c.avgLen <= 10 && new Set(c.vals.map(v => v.toLowerCase())).size === 2);
@@ -588,7 +588,7 @@ const Engine = (() => {
     // build every sensible way of reading the money, then let the balance decide
     const cands = [];
     // a balance column is filled on (almost) every row; a fee column is mostly empty
-    const balOpts = [null, ...numeric.filter(c => c.fill > .6 && !KW.fee.test(c.h)).map(c => c.i)];
+    const balOpts = [null, ...numeric.filter(c => c.fill > .6 && !KW.fee.test(c.h) && !KW.in.test(c.h) && !KW.out.test(c.h) && new Set(c.vals).size > Math.min(4, c.vals.length * .3)).map(c => c.i)]; // a balance changes; a column of the same number (e.g. Nr = 1) is not one
     const feeOpts = [null, ...numeric.filter(c => KW.fee.test(c.h) || c.fill < .6).map(c => c.i)];
     for (const bal of balOpts) for (const fee of feeOpts) {
       if (fee != null && fee === bal) continue;
@@ -629,8 +629,11 @@ const Engine = (() => {
     const verified = best.chk.hasBal && best.chk.frac > .98;
     // without a balance column we rely on the column names, so be careful
     const named = best.amount != null ? KW.amount.test(headers[best.amount]) : (KW.in.test(headers[best.in]) && KW.out.test(headers[best.out]));
-    best.verified = verified;
-    best.needsHelp = !verified && !named;
+    // one signed money column and nothing else (e.g. Wells Fargo: no headings, no balance): read it, but say so
+    const lone = !verified && !named && numeric.length === 1 && best.amount === numeric[0].i && best.desc != null && best.marker == null && !best.flip
+      && best.tx.some(t => t.amt > 0) && best.tx.some(t => t.amt < 0);
+    best.verified = verified; best.lone = lone;
+    best.needsHelp = !verified && !named && !lone;
     return best;
   }
 
@@ -654,6 +657,7 @@ const Engine = (() => {
     else if (tx.length > 1 && tx[0].date > tx[tx.length - 1].date) tx.reverse();
     const chk = check(tx);
     const warnings = [];
+    if (map.lone) warnings.push('This file has no column headings or running total, so amounts with a minus sign were read as money going out. Please check that money in and money out look right.');
     if (map.flip && map.marker == null) warnings.push('All amounts were read as money going out. If this statement also has money coming in, please check the columns.');
     if (!map.orderSure) warnings.push('Some dates could be read two ways (like 03/04). I read them as ' + (map.order === 'dmy' ? 'day/month' : 'month/day') + '.');
     if (chk.hasBal && !chk.ok) warnings.push(`${chk.bad.length} transaction(s) don't match the bank's balance.`);
@@ -2556,6 +2560,7 @@ const CURRENCIES=[['$','US dollar'],['R','South African rand'],['€','Euro'],['
 function savedCurs(){ try{ return JSON.parse(localStorage.getItem(CURKEY)||'{}'); }catch(e){ return {}; } }
 function guessCur(res){
   if(res.map&&res.map.order==='mdy') return '$';                      // month-first dates: American
+  if(/buchung|betrag|verwendungszweck|fecha|importe|concepto|montant|libell|bedrag|omschrijving|tegenrekening|data contabile|importo/i.test((res.headers||[]).join(' '))) return '€'; // euro-area language headings
   let tz=''; try{ tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch(e){}
   const T=[[/Johannesburg|Maseru|Mbabane/,'R'],[/Windhoek/,'N$'],[/Gaborone/,'P'],[/Nairobi/,'KSh'],[/Lagos/,'₦'],[/Lusaka/,'K'],[/Mauritius/,'Rs'],[/London|Belfast/,'£'],[/Zurich/,'CHF'],
     [/Stockholm|Oslo|Copenhagen/,'kr'],[/Warsaw/,'zł'],[/^Europe\//,'€'],[/Toronto|Vancouver|Edmonton|Winnipeg|Halifax|Regina|St_Johns|Montreal/,'C$'],[/Sao_Paulo|Bahia|Fortaleza|Recife|Manaus|Belem/,'R$'],
@@ -2575,7 +2580,10 @@ function finish(res, tx, map, remembered){
   if(tx.length>1 && tx[0].date>tx[tx.length-1].date) tx.reverse();
   tx.forEach(t=>{ const a=sub!=null?String(t.raw[sub]||'').trim():'', b=par!=null?String(t.raw[par]||'').trim():'';
     t.bankCat = a && Categorize.one(t.desc, t.amt, a, null).why==='bank' ? a : (b||a); });
+  for(let i=tx.length-1;i>=0;i--) if(/^\s*(opening|closing) balance\b|^\s*balance (brought|carried) forward\b|^\s*(saldo inicial|anfangssaldo|solde initial|beginsaldo)\b/i.test(tx[i].desc)) tx.splice(i,1); // a balance line is not money in or out
   const chk=Engine.check(tx);
+  // pending card payments are not final: the bank posts them again later, so they are not counted (no double counting)
+  tx.forEach(t=>{ t.pending = (chk.hasBal && t.bal==null && !!(t.amt||t.fee)) || /^\s*(pend(ing|iente)?|en attente|in behandeling|vorgemerkt|in afwachting|en cours)\b/i.test(t.desc) || (t.raw||[]).some(v=>/^\s*(pend(ing|iente)?|en attente|in behandeling|vorgemerkt|in afwachting|en cours)\s*$/i.test(String(v||''))); });
   const h=i=>i==null?null:res.headers[i];
   const used=[['Date',h(map.date)],['Description',h(map.desc)],['Amount',h(map.amount)],['DR/CR',h(map.marker)],['Money in',h(map.in)],['Money out',h(map.out)],['Fees',h(map.fee)],['Balance',h(map.bal)]].filter(x=>x[1]);
   const savedC=savedCurs()[res.headers.join('|')];
@@ -2600,9 +2608,9 @@ function combine(){
   }
   // a transaction is only a duplicate if an EARLIER FILE of the same account already has it
   // (two identical purchases in one file, e.g. two coffees on the same day, are both kept)
-  const seen=new Map();
+  const seen=new Map(), pend=[];
   FILES.forEach((f,fi)=>{ const here=new Map();
-    for(const t of f.tx){ const k=t.acct+'#'+txKey(t), n=(here.get(k)||0)+1; here.set(k,n);
+    for(const t of f.tx){ if(t.pending){ pend.push(t); continue; } const k=t.acct+'#'+txKey(t), n=(here.get(k)||0)+1; here.set(k,n);
       if((seen.get(k)||0)>=n) t.dup=true; else all.push(t); }
     for(const [k,n] of here) seen.set(k, Math.max(seen.get(k)||0, n)); });
   all.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
@@ -2614,7 +2622,7 @@ function combine(){
     if(i){ i.own=o.own=true; i.cat=o.cat='Own accounts'; i.why=o.why='you'; matched++; } }
   const curs=[...new Set(FILES.map(f=>f.cur))];
   const later=STATE&&STATE.askLater;
-  STATE={tx:all, files:FILES, matched, mixed:curs.length>1, cur:FILES[0]?FILES[0].cur:'R', askLater:later};
+  STATE={tx:all, pending:pend, files:FILES, matched, mixed:curs.length>1, cur:FILES[0]?FILES[0].cur:'R', askLater:later};
   if(STATE.mixed && VIEW==='all') VIEW=FILES[0].acct;
   render();
   // each shop name is looked up at most once per visit
@@ -2694,6 +2702,7 @@ function render(){
     lines.push(`<b>Which currency is "${esc(f.name)}" in?</b> The file shows plain numbers without a currency, so this is a best guess: ${curSelect(a,f.cur)} <button class="ghost" data-curok="${a}" type="button">Yes, that's right</button><br><span class="small">Your answer is remembered for statements from this bank.</span>`); });
   const dups=FILES.reduce((a,f)=>a+f.tx.filter(t=>t.dup).length,0);
   if(dups) lines.push(`${dups} duplicate transaction${dups>1?'s':''} from overlapping statements of the same account ${dups>1?'were':'was'} counted once.`);
+  if(STATE.pending&&STATE.pending.length) lines.push(`${STATE.pending.length} pending payment${STATE.pending.length>1?'s are':' is'} not counted yet: ${STATE.pending.slice(0,3).map(t=>esc(t.desc.slice(0,40))+' '+money(t.amt+t.fee,FILES.find(f=>f.acct===t.acct).cur)).join(', ')}${STATE.pending.length>3?'…':''}. ${STATE.pending.length>1?'They are':'It is'} counted when the bank shows ${STATE.pending.length>1?'them':'it'} as final on a later statement.`);
   if(matched) lines.push(`${matched} transfer${matched>1?'s':''} between your own accounts ${matched>1?'were':'was'} matched and left out of income and spending.`);
   if(STATE.mixed) lines.push(`These statements use different currencies, so they are shown one account at a time and never added together.`);
   c.className='status '+worst; c.innerHTML=lines.join('<br>');
