@@ -11,7 +11,7 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#14213a">
 <link rel="canonical" href="https://moneyscope.co.za/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MoneyScope","applicationCategory":"FinanceApplication","operatingSystem":"Web, iOS, Android, Windows, macOS","description":"Turns your bank statements into clear spending insights, charts and a monthly money check-up. Statements are processed privately on your own device.","url":"https://moneyscope.co.za/","offers":[{"@type":"Offer","name":"Monthly","price":"5.99","priceCurrency":"USD"},{"@type":"Offer","name":"Yearly","price":"59.90","priceCurrency":"USD"}]}</script>
-<link rel="icon" href="app/icon-192.webp">
+<link rel="icon" href="img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -81,6 +81,7 @@ section{padding:96px 0;border-bottom:1px solid var(--rule)}
 .plan.best{background:#fff;outline:2px solid var(--ink);outline-offset:-1px}
 .plan h3{font-size:28px}.price{font:500 52px Newsreader,serif;margin:14px 0 2px}.price small{font:400 16px "IBM Plex Sans";color:var(--muted)}
 .plan ul{list-style:none;padding:0;margin:22px 0 28px}.plan li{padding:9px 0;border-top:1px solid var(--rule);font-size:15px}
+.promo{margin:22px 0 0;font-size:15px}.promo a:not(.btn){color:var(--ink)}.promo form{display:none;gap:8px;margin-top:10px;flex-wrap:wrap}.promo.open form{display:flex}.promo input{font:500 16px "IBM Plex Mono",monospace;text-transform:uppercase;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;width:180px}.promo button{padding:10px 18px;border-radius:8px;border:0;background:var(--ink);color:#fff;font:600 15px "IBM Plex Sans";cursor:pointer}.promo .msg{margin-top:10px}.promo .ok{border:2px solid var(--green);border-radius:10px;padding:16px;background:#fff}.promo .bad{color:#b3261e}
 .plan li::before{content:"✓";color:var(--green);margin-right:10px;font-weight:600}
 /* faq */
 details{border-top:1px solid var(--rule);padding:20px 0}details:last-child{border-bottom:1px solid var(--rule)}
@@ -121,7 +122,7 @@ table.cmp th{font:500 12px "IBM Plex Mono";letter-spacing:.1em;text-transform:up
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header><div class="wrap">
-  <a class="brand" href="#"><i>M</i>MoneyScope</a>
+  <a class="brand" href="#"><svg class="mk" viewBox="0 0 120 120" width="28" height="28" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="24" fill="#1f3a5f"/><polyline points="28,84 28,40 52,66 72,48 92,32" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="92" cy="32" r="9" fill="#e0a43a"/></svg>MoneyScope</a>
   <nav class="top"><a href="#how">How it works</a><a href="#features">Features</a><a href="#privacy">Privacy</a><a href="#pricing">Pricing</a><a href="signin.html">Sign in</a><a class="btn" href="app/">Open the app</a></nav>
 </div></header>
 
@@ -234,6 +235,9 @@ table.cmp th{font:500 12px "IBM Plex Mono";letter-spacing:.1em;text-transform:up
     <div><b>DAYS 1 – 10</b><p>Use everything. Cancel any time in two clicks and pay nothing.</p></div>
     <div><b>DAY 11</b><p>Your plan starts: $5.99 a month, or $59.90 a year.</p></div>
   </div>
+  <div class="promo" id="promo"><a href="#" id="promolink">Have a code (for example from Gogo)? Enter it here</a>
+    <form id="promoform" autocomplete="off"><input id="promoin" aria-label="Discount code" placeholder="GOGO20" maxlength="20"><button type="submit">Apply</button></form>
+    <div class="msg" id="promomsg" aria-live="polite"></div></div>
   <p class="promise"><b>14-day refund promise:</b> not happy after a payment? Ask within 14 days for a full refund. <a href="refunds.html">Refund policy</a></p>
 </div>
 </div></section>
@@ -265,7 +269,7 @@ table.cmp th{font:500 12px "IBM Plex Mono";letter-spacing:.1em;text-transform:up
 </main>
 
 <footer><div class="wrap">
-  <div><a class="brand" href="#"><i>M</i>MoneyScope</a><p style="margin-top:12px;max-width:380px">Clear, private money insights from your own bank statements. Made in South Africa.</p><p style="margin-top:12px">Not financial advice. © <span id="yr"></span> MoneyScope.</p></div>
+  <div><a class="brand" href="#"><svg class="mk" viewBox="0 0 120 120" width="28" height="28" aria-hidden="true"><rect x="8" y="8" width="104" height="104" rx="24" fill="#1f3a5f"/><polyline points="28,84 28,40 52,66 72,48 92,32" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="92" cy="32" r="9" fill="#e0a43a"/></svg>MoneyScope</a><p style="margin-top:12px;max-width:380px">Clear, private money insights from your own bank statements. Made in South Africa.</p><p style="margin-top:12px">Not financial advice. © <span id="yr"></span> MoneyScope.</p></div>
   <div><h4>Product</h4><a href="app/">Open the app</a><a href="#how">How it works</a><a href="#pricing">Pricing</a></div>
   <div><h4>Company</h4><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms of use</a><a href="refunds.html">Refund policy</a><a href="mailto:moneyscope.help@gmail.com">moneyscope.help@gmail.com</a></div>
 </div></footer>
@@ -282,8 +286,9 @@ try { if (testMode) Paddle.Environment.set('sandbox');
   // after a successful checkout, open the app with the transaction, so the app can fetch its key automatically
   Paddle.Initialize({ token: PADDLE.token, eventCallback: ev => { if (ev && ev.name === 'checkout.completed' && ev.data && ev.data.transaction_id) setTimeout(() => { location.href = new URL('app/?txn=' + ev.data.transaction_id, location.href).href; }, 1500); } });
 } catch (e) {}
-function checkout(plan) {
-  try { Paddle.Checkout.open({ items: [{ priceId: PADDLE[plan], quantity: 1 }], settings: { displayMode: 'overlay', theme: 'light', successUrl: new URL('app/?welcome=1', location.href).href } }); }
+function checkout(plan, code) {
+  const c = code && CODES[code], price = c ? codePrice(c) : PADDLE[plan];
+  try { Paddle.Checkout.open(Object.assign({ items: [{ priceId: price, quantity: 1 }] }, c ? { discountCode: code } : {}, { settings: { displayMode: 'overlay', theme: 'light', successUrl: new URL('app/?welcome=1', location.href).href } })); }
   catch (e) { location.href = 'app/'; }       // if checkout can't open, the app still works
 }
 document.querySelectorAll('[data-bill]').forEach(b => b.addEventListener('click', () => {
@@ -293,6 +298,28 @@ document.querySelectorAll('[data-bill]').forEach(b => b.addEventListener('click'
   document.getElementById('pbtn').dataset.checkout = y ? 'yearly' : 'monthly';
 }));
 document.querySelectorAll('[data-checkout]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); checkout(a.dataset.checkout); }));
+// ---- Discount codes (one place to add more). Each code points to its own Paddle price (so it can have its own trial)
+// and the Paddle discount with the same code. Paddle checks the code again at checkout, so this list only decides what we show.
+const CODES = {
+  GOGO20: { label: '30-day free trial, then 20% off your first year', plan: 'yearly', trial: 30,
+            live: 'pri_01m8cj9egzkqmsvagt0yb5b66m', test: 'pri_01m8ch3zajww02m77qfqempvzs',
+            first: '$47.92 for your first year (normally $59.90), then $59.90 a year' }
+};
+let PROMO = null;
+function codePrice(c) { const id = testMode ? c.test : c.live; return /REPLACE/.test(id) ? PADDLE[c.plan] : id; }   // until the special price exists, use the normal yearly price
+function applyCode(raw) {
+  const code = String(raw || '').trim().toUpperCase(), c = CODES[code], m = document.getElementById('promomsg');
+  document.getElementById('promo').classList.add('open'); document.getElementById('promoin').value = code;
+  if (!c) { PROMO = null; m.innerHTML = '<span class="bad">That code isn\'t valid. Check the spelling, or start the normal free trial above.</span>'; return; }
+  PROMO = code;
+  m.innerHTML = '<div class="ok"><b>' + code + ' applied:</b> ' + c.label + '.<br>' + c.first + '. Yearly plan only. Cancel any time during the trial and you pay nothing.<br><br><a class="btn" href="#" id="promogo">Start your ' + c.trial + '-day free trial →</a></div>';
+  document.getElementById('promogo').addEventListener('click', e => { e.preventDefault(); checkout(c.plan, code); });
+}
+document.getElementById('promolink').addEventListener('click', e => { e.preventDefault(); document.getElementById('promo').classList.add('open'); document.getElementById('promoin').focus(); });
+document.getElementById('promoform').addEventListener('submit', e => { e.preventDefault(); applyCode(document.getElementById('promoin').value); });
+// links like moneyscope.co.za/?code=GOGO20 fill the code in and jump to pricing
+{ const q = new URLSearchParams(location.search).get('code'); if (q) { applyCode(q); setTimeout(() => document.getElementById('pricing').scrollIntoView(), 200); } }
+
 </script>
 </body>
 </html>
